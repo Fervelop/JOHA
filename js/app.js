@@ -57,9 +57,32 @@ $("yr").textContent = new Date().getFullYear();
 
 /* ---------- ventana de pieza ---------- */
 const lb = $("lb");
+function verFoto(src, alt) {
+  const u = imgUrl(src, 1100), main = $("lb-img");
+  main.classList.add("swap");
+  const pre = new Image();
+  pre.onload = pre.onerror = () => { main.src = u; $("lb-fill").src = u; main.alt = alt; main.classList.remove("swap"); };
+  pre.src = u;
+}
 function abrir(p) {
-  const u = imgUrl(p.foto, 1100);
+  const fotos = (p.fotos && p.fotos.length ? p.fotos : [p.foto]).filter(f => imgUrl(f, 10));
+  const u = imgUrl(fotos[0], 1100);
   $("lb-img").src = u; $("lb-fill").src = u; $("lb-img").alt = p.nombre;
+  const th = $("lb-thumbs");
+  th.textContent = "";
+  th.hidden = fotos.length < 2;
+  if (fotos.length > 1) fotos.forEach((f, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.setAttribute("aria-label", `Foto ${i + 1} de ${fotos.length}`);
+    b.setAttribute("aria-current", i === 0);
+    b.innerHTML = `<img src="${esc(imgUrl(f, 160))}" alt="">`;
+    b.addEventListener("click", () => {
+      th.querySelectorAll("button").forEach(x => x.setAttribute("aria-current", x === b));
+      verFoto(f, `${p.nombre}, foto ${i + 1}`);
+    });
+    th.appendChild(b);
+  });
   $("lb-t").textContent = p.nombre;
   $("lb-c").textContent = CAT[p.tipo] || "";
   lb.querySelector(".lb").classList.toggle("agotado", !!p.agotado);
@@ -85,7 +108,7 @@ function pintarCatalogo(productos) {
     li.className = "item" + (p.agotado ? " agotado" : "");
     li.dataset.c = p.tipo;
     li.innerHTML = `<button type="button" aria-label="Ver ${esc(p.nombre)}${p.agotado ? ", agotado" : ""}">
-      <div class="tarjeta">${p.agotado ? '<span class="badge">Agotado</span>' : ""}${ph(p.foto, p.nombre + ", JOHA", 700, true)}</div>
+      <div class="tarjeta">${p.agotado ? '<span class="badge">Agotado</span>' : ""}${ph(p.foto, p.nombre + ", JOHA", 700, true)}${(p.fotos || []).length > 1 ? `<span class="mas-fotos">${p.fotos.length} fotos</span>` : ""}</div>
       <h3>${esc(p.nombre)}</h3><span class="cat">${esc(CAT[p.tipo] || "")}</span></button>`;
     li.querySelector("button").addEventListener("click", () => abrir(p));
     grid.appendChild(li);
@@ -150,13 +173,46 @@ function aplicarAjustes(a) {
   setTimeout(() => { if (!document.querySelector("dialog[open]")) promo.showModal(); }, 700);
 }
 
+/* ---------- textos editables ---------- */
+const negritas = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+function lista(id, items, icono) {
+  const ul = $(id);
+  if (!ul || !Array.isArray(items) || !items.length) return;
+  const iconos = Array.isArray(icono) ? icono : null;
+  ul.textContent = "";
+  items.forEach((it, i) => {
+    if (!it || !it.titulo) return;
+    const li = document.createElement("li");
+    const ic = iconos ? iconos[i % iconos.length] : icono;
+    li.innerHTML = (ic ? `<svg aria-hidden="true"><use href="#${ic}"/></svg>` : "") +
+      `<div><h3>${esc(it.titulo)}</h3><p>${esc(it.texto || "")}</p></div>`;
+    ul.appendChild(li);
+  });
+}
+function aplicarTextos(t) {
+  if (!t || typeof t !== "object") return;
+  document.querySelectorAll("[data-t]").forEach(el => {
+    const v = el.dataset.t.split(".").reduce((o, k) => (o && o[k] != null ? o[k] : null), t);
+    if (typeof v !== "string" || !v.trim()) return;
+    if ("md" in el.dataset) el.innerHTML = negritas(v); else el.textContent = v;
+  });
+  const c = t.calidad || {};
+  lista("t-bene", c.beneficios, ["i-drop", "i-shield", "i-mirror"]);
+  lista("t-tips", (t.cuidado || {}).consejos, "i-spark");
+  lista("t-pasos", (t.pedir || {}).pasos, null);
+  const u = imgUrl(c.foto, 900);
+  if (u) { $("cal-img").src = u; $("cal-fill").src = u; }
+}
+
 /* ---------- arranque ---------- */
 (async () => {
   document.querySelectorAll(".wa").forEach(el => el.href = waLink(el.dataset.msg));
-  const [datos, ajustes] = await Promise.all([
+  const [datos, ajustes, textos] = await Promise.all([
     cargar("data/productos.json", { productos: [] }),
-    cargar("data/ajustes.json", {})
+    cargar("data/ajustes.json", {}),
+    cargar("data/textos.json", null)
   ]);
+  aplicarTextos(textos);
   const productos = (Array.isArray(datos.productos) ? datos.productos : [])
     .filter(p => p && p.nombre && p.foto && CAT[p.tipo]);
   aplicarAjustes(ajustes || {});

@@ -235,6 +235,15 @@ dialog{border:0;padding:0;background:transparent;max-width:min(920px,100% - 32px
 dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
 .lb{display:grid;grid-template-columns:1.1fr .9fr;background:var(--bg);border-radius:30px;overflow:hidden}
 .lb .media{position:relative;aspect-ratio:1/1.05;overflow:hidden;background:var(--rosa-suave)}
+.thumbs{position:absolute;z-index:3;left:0;right:0;bottom:14px;display:flex;justify-content:center;gap:8px;padding:0 14px}
+.thumbs button{width:52px;height:52px;padding:0;border-radius:12px;overflow:hidden;border:2px solid rgba(255,249,247,.7);background:var(--rosa-suave);cursor:pointer;opacity:.75;transition:opacity .2s ease,border-color .2s ease,transform .2s var(--ease-out)}
+.thumbs button img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs button[aria-current="true"]{opacity:1;border-color:var(--dorado)}
+@media (hover:hover) and (pointer:fine){.thumbs button:hover{opacity:1}}
+.thumbs button:active{transform:scale(.95)}
+.ph .main{transition:opacity .25s ease}
+.ph .main.swap{opacity:0}
+.mas-fotos{position:absolute;z-index:4;right:14px;bottom:14px;font-size:.8rem;font-weight:500;line-height:1;padding:7px 11px;border-radius:999px;background:rgba(255,249,247,.92);color:#5B2937}
 .lb .info{padding:44px 36px;display:flex;flex-direction:column;justify-content:center;position:relative}
 .lb h3{font-family:var(--serif);font-weight:400;font-size:2rem;line-height:1.1;margin:0 0 6px}
 .lb .cat{color:var(--ink-soft);margin:0 0 22px}
@@ -330,8 +339,8 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
     <div class="wrap">
       <div class="copy">
         <h1><svg class="logo-full" viewBox="0 0 449 282" role="img" aria-label="JOHA, brilla con tu esencia"><use href="#logo-full" width="449" height="282"/></svg></h1>
-        <p class="lede">Accesorios y joyería femenina para los pequeños detalles que cuentan tu historia.</p>
-        <p class="rodio"><svg aria-hidden="true"><use href="#i-shine"/></svg>Con baño de rodio: no se oxida ni se mancha.</p>
+        <p class="lede" data-t="portada.texto">Accesorios y joyería femenina para los pequeños detalles que cuentan tu historia.</p>
+        <p class="rodio"><svg aria-hidden="true"><use href="#i-shine"/></svg><span data-t="portada.rodio">Con baño de rodio: no se oxida ni se mancha.</span></p>
         <div class="actions">
           <a class="btn btn-fill" href="#catalogo">Ver el catálogo</a>
           <a class="btn btn-line wa" data-msg="Hola JOHA, me interesa saber más sobre tus accesorios 🌷" href="#" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Pedir por WhatsApp</a>
@@ -367,17 +376,17 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
   <section class="calidad" id="calidad">
     <div class="wrap">
       <div class="tarjeta">
-        <div class="ph"><img class="fill" src="images/productos/aretes-flor-dorada.webp" alt="" aria-hidden="true" loading="lazy"><img class="main" src="images/productos/aretes-flor-dorada.webp" alt="Aretes flor dorada JOHA con acabado en espejo" loading="lazy"></div>
+        <div class="ph"><img class="fill" id="cal-fill" src="images/productos/aretes-flor-dorada.webp" alt="" aria-hidden="true" loading="lazy"><img class="main" id="cal-img" src="images/productos/aretes-flor-dorada.webp" alt="Pieza JOHA con acabado en espejo" loading="lazy"></div>
       </div>
       <div>
-        <h2>Calidad que perdura</h2>
-        <p class="intro">Todas nuestras piezas tienen <strong>baño de rodio</strong>, un material que las protege y conserva su brillo para que te acompañen por mucho tiempo.</p>
-        <ul class="bene">
+        <h2 data-t="calidad.titulo">Calidad que perdura</h2>
+        <p class="intro" data-t="calidad.texto" data-md>Todas nuestras piezas tienen <strong>baño de rodio</strong>, un material que las protege y conserva su brillo para que te acompañen por mucho tiempo.</p>
+        <ul class="bene" id="t-bene">
           <li><svg aria-hidden="true"><use href="#i-drop"/></svg><div><h3>No se oxida</h3><p>Lúcelas a diario sin preocuparte por el paso del tiempo.</p></div></li>
           <li><svg aria-hidden="true"><use href="#i-shield"/></svg><div><h3>No se mancha</h3><p>Su color se mantiene igual que el primer día.</p></div></li>
           <li><svg aria-hidden="true"><use href="#i-mirror"/></svg><div><h3>Acabado en espejo</h3><p>Un baño pulido que refleja la luz y hace brillar cada detalle.</p></div></li>
         </ul>
-        <p class="cierre">Hechas para durar, como lo que sientes</p>
+        <p class="cierre" data-t="calidad.cierre">Hechas para durar, como lo que sientes</p>
       </div>
     </div>
   </section>
@@ -385,10 +394,10 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
   <section class="cuidado" id="cuidado">
     <div class="wrap">
       <div class="head">
-        <h2>Cuida tus piezas</h2>
-        <p>Con estos cuidados sencillos, el baño de rodio conserva su acabado en espejo por mucho más tiempo.</p>
+        <h2 data-t="cuidado.titulo">Cuida tus piezas</h2>
+        <p data-t="cuidado.texto">Con estos cuidados sencillos, el baño de rodio conserva su acabado en espejo por mucho más tiempo.</p>
       </div>
-      <ul class="tips">
+      <ul class="tips" id="t-tips">
         <li><svg aria-hidden="true"><use href="#i-spark"/></svg><div><h3>Póntelas de último</h3><p>Primero el perfume, las cremas y el maquillaje; después tus accesorios.</p></div></li>
         <li><svg aria-hidden="true"><use href="#i-spark"/></svg><div><h3>Quítatelas antes del agua</h3><p>Para bañarte, nadar en piscina o mar, o hacer ejercicio.</p></div></li>
         <li><svg aria-hidden="true"><use href="#i-spark"/></svg><div><h3>Límpialas con suavidad</h3><p>Usa un paño suave y seco. Evita químicos, alcohol y productos abrasivos.</p></div></li>
@@ -402,19 +411,19 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
   <section class="band" id="esencia">
     <div class="wrap">
       <svg class="rose" aria-hidden="true"><use href="#i-rose"/></svg>
-      <p class="script">Pequeños detalles, grandes emociones</p>
-      <p>Un accesorio no es solo un complemento. Es un detalle que habla de quién eres, de lo que sientes y de los momentos que quieres recordar.</p>
+      <p class="script" data-t="esencia.frase">Pequeños detalles, grandes emociones</p>
+      <p data-t="esencia.texto">Un accesorio no es solo un complemento. Es un detalle que habla de quién eres, de lo que sientes y de los momentos que quieres recordar.</p>
     </div>
   </section>
 
   <section class="order" id="pedido">
     <div class="wrap">
       <div class="intro">
-        <h2>Cómo pedir</h2>
-        <p>Te atendemos por WhatsApp, con calma y de forma personal.</p>
+        <h2 data-t="pedir.titulo">Cómo pedir</h2>
+        <p data-t="pedir.texto">Te atendemos por WhatsApp, con calma y de forma personal.</p>
         <a class="btn btn-fill wa" data-msg="Hola JOHA, me interesa saber más sobre tus accesorios 🌷" href="#" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Escribir por WhatsApp</a>
       </div>
-      <ol class="steps">
+      <ol class="steps" id="t-pasos">
         <li><div><h3>Elige tu pieza</h3><p>Recorre el catálogo y guarda las que más te gusten.</p></div></li>
         <li><div><h3>Escríbenos</h3><p>Desde cada pieza puedes enviarnos un mensaje con su nombre.</p></div></li>
         <li><div><h3>Confirmamos contigo</h3><p>Te contamos precio, disponibilidad y forma de entrega.</p></div></li>
@@ -436,7 +445,7 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
 
 <dialog id="lb" aria-labelledby="lb-t">
   <div class="lb">
-    <div class="media"><div class="ph"><img class="fill" id="lb-fill" src="" alt=""><img class="main" id="lb-img" src="" alt=""></div></div>
+    <div class="media"><div class="ph"><img class="fill" id="lb-fill" src="" alt=""><img class="main" id="lb-img" src="" alt=""></div><div class="thumbs" id="lb-thumbs" role="group" aria-label="Fotos de la pieza" hidden></div></div>
     <div class="info">
       <button class="close" type="button" aria-label="Cerrar" id="lb-x">×</button>
       <span class="badge">Agotado</span>

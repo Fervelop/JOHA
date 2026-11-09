@@ -1,7 +1,11 @@
-# Sitio estático: no hay paso de compilación.
+# Sitio estático. En cada publicación se unen las fichas de
+# content/productos/ en data/productos.json.
 [build]
   publish = "."
-  command = ""
+  command = "node scripts/compilar.js"
+
+[build.environment]
+  NODE_VERSION = "20"
 
 # Cabeceras de seguridad para todo el sitio
 [[headers]]
@@ -26,4 +30,16 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
     Cache-Control = "no-store"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.githubusercontent.com; font-src 'self' data:; connect-src 'self' https://api.github.com https://api.netlify.com https://*.githubusercontent.com; frame-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://*.githubusercontent.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.github.com https://api.netlify.com https://*.githubusercontent.com; frame-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'"
+
+# Las fichas y el script son internos
+[[redirects]]
+  from = "/content/*"
+  to = "/404"
+  status = 404
+  force = true
+[[redirects]]
+  from = "/scripts/*"
+  to = "/404"
+  status = 404
+  force = true

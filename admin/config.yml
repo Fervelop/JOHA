@@ -1,76 +1,204 @@
-# Panel de administración de JOHA (Decap CMS)
+# Panel de administración de JOHA (Decap CMS 3.17.3)
 # Inicio de sesión con GitHub a través del proveedor OAuth de Netlify.
-# Solo pueden entrar cuentas de GitHub con permiso de escritura en este repositorio.
+# Solo pueden entrar cuentas de GitHub con permiso de escritura en el repositorio.
 backend:
   name: github
-  repo: Fervelop/joha
+  repo: Fervelop/JOHA
   branch: main
   base_url: https://api.netlify.com
   auth_endpoint: auth
+  # Borradores: cada cambio crea una solicitud de revisión (pull request)
+  # y Netlify genera una vista previa antes de publicar.
+  preview_context: deploy/netlify
   commit_messages:
     create: "Crear {{collection}} «{{slug}}»"
     update: "Actualizar {{collection}} «{{slug}}»"
     delete: "Eliminar {{collection}} «{{slug}}»"
     uploadMedia: "Subir foto «{{path}}»"
     deleteMedia: "Eliminar foto «{{path}}»"
+    openAuthoring: "{{message}}"
 
+publish_mode: editorial_workflow
 locale: es
 site_url: https://joha-jw.netlify.app
 display_url: https://joha-jw.netlify.app
-logo_url: /apple-touch-icon.png
-publish_mode: simple
+logo:
+  src: /admin/logo-joha.svg
+  show_in_header: true
 
 media_folder: images/productos
 public_folder: /images/productos
 
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: "-"
+
 collections:
-  - name: tienda
-    label: Tienda
+  # ------------------------------------------------------------------ productos
+  - name: productos
+    label: Productos
+    label_singular: producto
+    description: >-
+      Cada pieza es una ficha. Usa los filtros para ver agotadas o las de la portada.
+      El número de «Orden» define la posición en la página (menor primero).
+    folder: content/productos
+    format: json
+    extension: json
+    create: true
+    delete: true
+    slug: "{{nombre}}"
+    identifier_field: nombre
+    summary: "{{nombre}}"
+    sortable_fields:
+      - field: orden
+        label: Orden en la página
+        default_sort: asc
+      - field: nombre
+        label: Nombre
+    view_filters:
+      - { label: "Disponibles", field: agotado, pattern: false }
+      - { label: "Agotados", field: agotado, pattern: true }
+      - { label: "En la portada", field: destacado, pattern: true }
+    view_groups:
+      - { label: "Tipo", field: tipo }
+      - { label: "Disponibilidad", field: agotado }
+    fields:
+      - name: nombre
+        label: Nombre
+        widget: string
+        pattern: ['^.{2,60}$', 'Entre 2 y 60 caracteres']
+      - name: tipo
+        label: Tipo
+        widget: select
+        options:
+          - { label: "Aretes", value: "aretes" }
+          - { label: "Set de collar y aretes", value: "sets" }
+          - { label: "Collares y pulseras", value: "collares" }
+      - name: image
+        label: Foto principal
+        widget: image
+        choose_url: false
+        hint: "La que se ve en el catálogo y en la portada. PNG, JPG o WebP, máximo 5 MB."
+        media_library:
+          config:
+            max_file_size: 5242880
+      - name: galeria
+        label: Más fotos
+        label_singular: foto
+        widget: list
+        required: false
+        max: 5
+        collapsed: false
+        summary: "{{fields.foto}}"
+        hint: "Opcional. Hasta 5 fotos adicionales que se ven al abrir la pieza."
+        fields:
+          - name: foto
+            label: Foto
+            widget: image
+            choose_url: false
+            media_library:
+              config:
+                max_file_size: 5242880
+      - name: agotado
+        label: Agotado
+        widget: boolean
+        default: false
+      - name: destacado
+        label: Mostrar en la portada
+        widget: boolean
+        default: false
+        hint: "Las piezas agotadas no se muestran en la portada aunque estén marcadas."
+      - name: orden
+        label: Orden
+        widget: number
+        value_type: int
+        default: 100
+        min: 1
+        hint: "Posición en el catálogo: 10, 20, 30… Usa 15 para poner una pieza entre la 10 y la 20."
+
+  # ------------------------------------------------------------------ página
+  - name: pagina
+    label: Página
     editor:
       preview: false
     files:
-      - name: productos
-        label: Catálogo de productos
-        file: data/productos.json
-        description: >-
-          Agrega, edita o reordena las piezas. El orden de la lista es el orden en la página.
-          Los cambios se publican solos en uno o dos minutos.
+      - name: textos
+        label: Textos de la página
+        file: data/textos.json
+        description: "Los textos de cada sección. Para resaltar una palabra en negrita, escríbela entre **asteriscos**."
         fields:
-          - name: productos
-            label: Productos
-            label_singular: producto
-            widget: list
-            add_to_top: true
-            summary: "{{fields.nombre}}"
+          - name: portada
+            label: Portada
+            widget: object
+            collapsed: true
             fields:
-              - name: nombre
-                label: Nombre
-                widget: string
-                pattern: ['^.{2,60}$', 'Entre 2 y 60 caracteres']
-              - name: tipo
-                label: Tipo
-                widget: select
-                options:
-                  - { label: "Aretes", value: "aretes" }
-                  - { label: "Set de collar y aretes", value: "sets" }
-                  - { label: "Collares y pulseras", value: "collares" }
+              - { name: texto, label: "Frase principal", widget: text }
+              - { name: rodio, label: "Línea del rodio", widget: string }
+          - name: calidad
+            label: "Calidad que perdura"
+            widget: object
+            collapsed: true
+            fields:
+              - { name: titulo, label: Título, widget: string }
+              - { name: texto, label: Texto, widget: text }
               - name: foto
-                label: Foto
+                label: Foto de la sección
                 widget: image
                 choose_url: false
-                hint: "Foto cuadrada o vertical, en PNG, JPG o WebP. Máximo 5 MB."
-                media_library:
-                  config:
-                    max_file_size: 5242880
-              - name: agotado
-                label: Agotado
-                widget: boolean
-                default: false
-              - name: destacado
-                label: Mostrar en la portada
-                widget: boolean
-                default: false
-                hint: "Las piezas agotadas no se muestran en la portada aunque estén marcadas."
+              - name: beneficios
+                label: Beneficios
+                label_singular: beneficio
+                widget: list
+                min: 3
+                max: 3
+                hint: "Siempre son 3, cada uno con su ícono: gota, escudo y espejo."
+                summary: "{{fields.titulo}}"
+                fields:
+                  - { name: titulo, label: Título, widget: string }
+                  - { name: texto, label: Texto, widget: string }
+              - { name: cierre, label: "Frase final (manuscrita)", widget: string }
+          - name: cuidado
+            label: "Cuida tus piezas"
+            widget: object
+            collapsed: true
+            fields:
+              - { name: titulo, label: Título, widget: string }
+              - { name: texto, label: Texto, widget: text }
+              - name: consejos
+                label: Consejos
+                label_singular: consejo
+                widget: list
+                min: 1
+                max: 10
+                summary: "{{fields.titulo}}"
+                fields:
+                  - { name: titulo, label: Título, widget: string }
+                  - { name: texto, label: Texto, widget: string }
+          - name: esencia
+            label: "Nuestra esencia"
+            widget: object
+            collapsed: true
+            fields:
+              - { name: frase, label: "Frase (manuscrita)", widget: string }
+              - { name: texto, label: Texto, widget: text }
+          - name: pedir
+            label: "Cómo pedir"
+            widget: object
+            collapsed: true
+            fields:
+              - { name: titulo, label: Título, widget: string }
+              - { name: texto, label: Texto, widget: string }
+              - name: pasos
+                label: Pasos
+                label_singular: paso
+                widget: list
+                min: 1
+                max: 5
+                summary: "{{fields.titulo}}"
+                fields:
+                  - { name: titulo, label: Título, widget: string }
+                  - { name: texto, label: Texto, widget: string }
 
       - name: ajustes
         label: Ajustes generales

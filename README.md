@@ -69,19 +69,38 @@ Abrir https://joha-jw.netlify.app/admin → **Iniciar sesión con GitHub**.
 
 ## Uso diario del panel
 
-**Agregar producto:** Tienda → Catálogo de productos → *Añadir producto* →
-nombre, tipo, foto → Publicar.
+El panel trabaja con **borradores**: nada sale a la página hasta que lo publicas.
 
-**Marcar agotado:** abrir el producto → activar *Agotado* → Publicar.
+1. **Contenido → Productos.** Cada pieza es una ficha con miniatura. Usa la vista
+   de cuadrícula, la búsqueda, *Filter by* (Disponibles, Agotados, En la portada)
+   y *Group by* (Tipo, Disponibilidad).
+2. **Nuevo producto:** botón **+ producto** → nombre, tipo, foto principal,
+   más fotos (opcional), agotado, portada y orden.
+3. A la derecha ves **cómo quedará la tarjeta** en el catálogo.
+4. **Guardar** crea un borrador. En **Flujo Editorial** los borradores pasan por
+   *Borrador → En revisión → Listo*. En revisión, Netlify genera un enlace de
+   vista previa del sitio completo (botón *Ver vista previa*).
+5. **Publicar** (desde *Listo* o desde el editor) lo lleva a la página en uno o
+   dos minutos.
 
-**Portada:** activar *Mostrar en la portada* en las piezas que quieras en la
-ruleta. Las agotadas nunca se muestran ahí. Si hay menos de 3 marcadas, se
-completan con otras disponibles.
+**Orden:** el campo *Orden* (10, 20, 30…) define la posición; usa 15 para poner
+una pieza entre la 10 y la 20.
 
-**Orden:** arrastrar los productos en la lista; ese es el orden en la página.
+**Textos:** Contenido → Página → *Textos de la página*. Para poner una palabra en
+negrita, escríbela entre `**asteriscos**`.
 
-**Ventana de lanzamiento:** Tienda → Ajustes generales → activar o desactivar
-y cambiar título y texto.
+**Ajustes:** Contenido → Página → *Ajustes generales* (WhatsApp, Instagram y la
+ventana de lanzamiento).
+
+## Cómo funciona por dentro
+
+- `content/productos/*.json`: una ficha por pieza (la edita el panel).
+- `scripts/compilar.js`: en cada publicación Netlify une las fichas en
+  `data/productos.json`, ordenadas y validadas. Una ficha incompleta se omite y
+  queda anotada en el registro del deploy.
+- `data/textos.json` y `data/ajustes.json`: textos y ajustes (los edita el panel).
+- `admin/preview.js` y `admin/preview.css`: vista previa de la tarjeta.
+- `admin/joha-admin.css`: apariencia JOHA del panel.
 
 Las fotos se optimizan solas al mostrarse (Netlify Image CDN), así que se pueden
 subir tal cual salen de la edición (máximo 5 MB).
