@@ -3,7 +3,7 @@
 # Solo pueden entrar cuentas de GitHub con permiso de escritura en este repositorio.
 backend:
   name: github
-  repo: fervelop7/joha
+  repo: Fervelop/joha
   branch: main
   base_url: https://api.netlify.com
   auth_endpoint: auth
