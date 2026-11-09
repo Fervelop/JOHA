@@ -11,7 +11,7 @@
       "nombre": "Aretes de corazón rosa",
       "tipo": "aretes",
       "foto": "/images/productos/aretes-de-corazon-rosa.webp",
-      "agotado": false,
+      "agotado": true,
       "destacado": true
     },
     {
