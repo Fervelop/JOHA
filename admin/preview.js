@@ -51,4 +51,50 @@
 
   CMS.registerPreviewStyle("/admin/preview.css");
   CMS.registerPreviewTemplate("productos", Producto);
+  /* ---------- ventana de bienvenida ---------- */
+  var Promo = createClass({
+    render: function () {
+      var e = this.props.entry, d = function (k) { return e.getIn(["data", k]); };
+      var img = d("imagen") ? String(this.props.getAsset(d("imagen"))) : "";
+      var frec = { visita: "cada vez que abren la página", sesion: "una vez por visita", una_vez: "solo la primera vez" }[d("frecuencia")] || "cada vez que abren la página";
+      return h("div", { className: "pv" },
+        h("p", { className: "rot" }, d("activa") === false ? "La ventana está apagada: no se mostrará." : "Así se verá la ventana (" + frec + ")"),
+        h("div", { className: "promo" + (d("activa") === false ? " off" : "") },
+          img ? h("img", { className: "promo-img", src: img, alt: "" }) : h("img", { className: "promo-logo", src: "/admin/logo-joha.svg", alt: "" }),
+          h("h2", null, d("titulo") || "Título"),
+          d("frase") ? h("p", { className: "frase" }, d("frase")) : null,
+          h("p", { className: "txt" }, d("texto") || ""),
+          h("span", { className: "b1" }, d("boton_catalogo") || "Ver el catálogo"),
+          d("mostrar_whatsapp") === false ? null : h("span", { className: "b2" }, d("boton_whatsapp") || "Pedir por WhatsApp")),
+        d("hasta") ? h("p", { className: "rot" }, "Se deja de mostrar después del " + String(d("hasta"))) : null
+      );
+    }
+  });
+
+  /* ---------- portada ---------- */
+  var Portada = createClass({
+    render: function () {
+      var e = this.props.entry, self = this;
+      var r = e.getIn(["data", "ruleta"]);
+      var origen = r && r.get("origen");
+      var fotos = r && r.get("fotos") ? r.get("fotos").toJS() : [];
+      return h("div", { className: "pv" },
+        h("p", { className: "rot" }, "Frase de la portada"),
+        h("p", { className: "lede" }, e.getIn(["data", "texto"]) || ""),
+        h("p", { className: "rodio" }, "◆ " + (e.getIn(["data", "rodio"]) || "")),
+        h("p", { className: "rot" }, origen === "fotos"
+          ? (fotos.length ? "Tarjetas que giran: tus fotos" : "Elegiste fotos propias pero no hay ninguna: se usarán las piezas marcadas")
+          : "Tarjetas que giran: las piezas marcadas «Mostrar en la portada» que no estén agotadas"),
+        origen === "fotos" && fotos.length
+          ? h("div", { className: "galeria" }, fotos.map(function (f, i) {
+              return h("div", { key: i, className: "mini grande" }, f.foto ? h("img", { src: String(self.props.getAsset(f.foto)), alt: "" }) : null);
+            }))
+          : null,
+        h("p", { className: "rot" }, "Cambian cada " + ((r && r.get("segundos")) || 4) + " segundos")
+      );
+    }
+  });
+
+  CMS.registerPreviewTemplate("promo", Promo);
+  CMS.registerPreviewTemplate("portada", Portada);
 })();

@@ -86,11 +86,16 @@ El panel trabaja con **borradores**: nada sale a la página hasta que lo publica
 **Orden:** el campo *Orden* (10, 20, 30…) define la posición; usa 15 para poner
 una pieza entre la 10 y la 20.
 
-**Textos:** Contenido → Página → *Textos de la página*. Para poner una palabra en
-negrita, escríbela entre `**asteriscos**`.
+**Página** (Contenido → Página):
 
-**Ajustes:** Contenido → Página → *Ajustes generales* (WhatsApp, Instagram y la
-ventana de lanzamiento).
+- *Portada*: frase, línea del rodio y las tarjetas que giran (piezas marcadas
+  o fotos propias, y la velocidad).
+- *Ventana de bienvenida*: encender/apagar, título, frase, texto, imagen,
+  botones, mensaje de WhatsApp, frecuencia, segundos de espera y fecha de fin.
+- *Textos de las secciones*: calidad, cuidado, esencia y cómo pedir. Para una
+  palabra en negrita, escríbela entre `**asteriscos**`.
+- *Ajustes generales*: WhatsApp, Instagram, modo con el que abre la página
+  (oscuro por defecto) y qué secciones se ven.
 
 ## Cómo funciona por dentro
 
@@ -98,7 +103,7 @@ ventana de lanzamiento).
 - `scripts/compilar.js`: en cada publicación Netlify une las fichas en
   `data/productos.json`, ordenadas y validadas. Una ficha incompleta se omite y
   queda anotada en el registro del deploy.
-- `data/textos.json` y `data/ajustes.json`: textos y ajustes (los edita el panel).
+- `data/portada.json`, `data/promo.json`, `data/textos.json`, `data/ajustes.json`: contenido de la página (los edita el panel).
 - `admin/preview.js` y `admin/preview.css`: vista previa de la tarjeta.
 - `admin/joha-admin.css`: apariencia JOHA del panel.
 

@@ -37,7 +37,10 @@ async function cargar(ruta, porDefecto) {
   }
 }
 
-/* ---------- modo claro / oscuro ---------- */
+/* ---------- modo claro / oscuro (oscuro por defecto) ---------- */
+let temaSync = () => {};
+let temaElegido = false;
+try { temaElegido = !!localStorage.getItem("joha-tema"); } catch (e) {}
 (() => {
   const root = document.documentElement, btn = $("tema");
   const sys = matchMedia("(prefers-color-scheme: dark)");
@@ -47,9 +50,11 @@ async function cargar(ruta, porDefecto) {
     const t = isDark() ? "light" : "dark";
     root.dataset.theme = t;
     try { localStorage.setItem("joha-tema", t); } catch (e) {}
+    temaElegido = true;
     sync();
   });
   sys.addEventListener("change", sync);
+  temaSync = sync;
   sync();
 })();
 
@@ -121,11 +126,21 @@ document.querySelectorAll(".filters button").forEach(b => b.addEventListener("cl
 }));
 
 /* ---------- ruleta de la portada ---------- */
-function pintarRuleta(productos) {
+function pintarRuleta(productos, conf) {
+  conf = conf || {};
   const disponibles = productos.filter(p => !p.agotado);
-  let lista = disponibles.filter(p => p.destacado);
-  if (lista.length < 3) lista = lista.concat(disponibles.filter(p => !p.destacado)).slice(0, Math.max(3, lista.length));
+  let lista;
+  const propias = (Array.isArray(conf.fotos) ? conf.fotos : [])
+    .filter(f => f && imgUrl(f.foto, 10))
+    .map(f => ({ nombre: f.descripcion || "Pieza JOHA", foto: f.foto }));
+  if (conf.origen === "fotos" && propias.length) {
+    lista = propias;
+  } else {
+    lista = disponibles.filter(p => p.destacado);
+    if (lista.length < 3) lista = lista.concat(disponibles.filter(p => !p.destacado)).slice(0, Math.max(3, lista.length));
+  }
   lista = lista.slice(0, 8);
+  const ms = Math.min(10, Math.max(2, Number(conf.segundos) || 4)) * 1000;
   const box = $("ruleta");
   if (!lista.length) return;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)");
@@ -147,7 +162,7 @@ function pintarRuleta(productos) {
     });
   }
   const next = () => { cur = (cur + 1) % n; layout(); };
-  const play = () => { if (n > 1 && !timer && !reduce.matches && !document.hidden) timer = setInterval(next, 3800); };
+  const play = () => { if (n > 1 && !timer && !reduce.matches && !document.hidden) timer = setInterval(next, ms); };
   const stop = () => { clearInterval(timer); timer = null; };
   box.addEventListener("mouseenter", stop);
   box.addEventListener("mouseleave", play);
@@ -156,21 +171,59 @@ function pintarRuleta(productos) {
   layout(); play();
 }
 
-/* ---------- ajustes: WhatsApp, Instagram, promo ---------- */
+/* ---------- ajustes generales ---------- */
 function aplicarAjustes(a) {
   if (/^57\d{10}$/.test(a.whatsapp || "")) WHATSAPP = a.whatsapp;
   document.querySelectorAll(".wa").forEach(el => el.href = waLink(el.dataset.msg));
   const ig = $("ig"), user = String(a.instagram || "").replace(/^@/, "");
   if (/^[\w.]{1,30}$/.test(user)) ig.href = "https://instagram.com/" + user; else ig.remove();
 
+  if (!temaElegido && a.tema_inicial === "claro") { document.documentElement.dataset.theme = "light"; temaSync(); }
+
+  const sec = a.secciones || {};
+  ["calidad", "cuidado", "esencia", "pedir"].forEach(k => {
+    if (sec[k] === false) document.querySelectorAll(`[data-sec="${k}"]`).forEach(el => el.hidden = true);
+  });
+}
+
+/* ---------- ventana de bienvenida ---------- */
+function aplicarPromo(pr, ajustesViejos) {
+  // compatibilidad con la versión anterior (promo dentro de ajustes)
+  if (!pr || typeof pr !== "object") pr = {
+    activa: ajustesViejos.promo_activa, titulo: ajustesViejos.promo_titulo, texto: ajustesViejos.promo_texto
+  };
+  if (pr.activa === false) return;
+  if (pr.hasta) {
+    const fin = new Date(pr.hasta + "T23:59:59");
+    if (!isNaN(fin) && Date.now() > fin.getTime()) return;
+  }
+  const clave = "joha-promo-" + String((pr.titulo || "") + (pr.texto || "")).length + "-" + (pr.titulo || "").slice(0, 20);
+  try {
+    if (pr.frecuencia === "sesion" && sessionStorage.getItem(clave)) return;
+    if (pr.frecuencia === "una_vez" && localStorage.getItem(clave)) return;
+  } catch (e) {}
+
+  const set = (id, v) => { if (typeof v === "string" && v.trim()) $(id).textContent = v; };
+  set("promo-t", pr.titulo); set("promo-frase", pr.frase); set("promo-txt", pr.texto);
+  set("promo-cat", pr.boton_catalogo); set("promo-wa-txt", pr.boton_whatsapp);
+  if (pr.frase === "") $("promo-frase").hidden = true;
+  const img = imgUrl(pr.imagen, 900);
+  if (img) { $("promo-img").src = img; $("promo-img").alt = pr.titulo || ""; $("promo-img").hidden = false; $("promo-logo").style.display = "none"; }
+  const wa = $("promo-wa");
+  if (pr.mostrar_whatsapp === false) wa.remove();
+  else if (pr.mensaje_whatsapp) wa.href = waLink(pr.mensaje_whatsapp);
+
   const promo = $("promo");
-  if (a.promo_activa === false) return;
-  if (a.promo_titulo) $("promo-t").textContent = a.promo_titulo;
-  if (a.promo_texto) $("promo-txt").textContent = a.promo_texto;
+  const marcar = () => { try {
+    if (pr.frecuencia === "sesion") sessionStorage.setItem(clave, "1");
+    if (pr.frecuencia === "una_vez") localStorage.setItem(clave, "1");
+  } catch (e) {} };
+  promo.addEventListener("close", marcar);
   $("promo-x").addEventListener("click", () => promo.close());
   $("promo-cat").addEventListener("click", () => promo.close());
   promo.addEventListener("click", e => { if (e.target === promo) promo.close(); });
-  setTimeout(() => { if (!document.querySelector("dialog[open]")) promo.showModal(); }, 700);
+  const espera = Math.min(30, Math.max(0, Number(pr.segundos_espera ?? 1))) * 1000;
+  setTimeout(() => { if (!document.querySelector("dialog[open]")) promo.showModal(); }, espera);
 }
 
 /* ---------- textos editables ---------- */
@@ -207,15 +260,18 @@ function aplicarTextos(t) {
 /* ---------- arranque ---------- */
 (async () => {
   document.querySelectorAll(".wa").forEach(el => el.href = waLink(el.dataset.msg));
-  const [datos, ajustes, textos] = await Promise.all([
+  const [datos, ajustes, textos, portada, promo] = await Promise.all([
     cargar("data/productos.json", { productos: [] }),
     cargar("data/ajustes.json", {}),
-    cargar("data/textos.json", null)
+    cargar("data/textos.json", {}),
+    cargar("data/portada.json", {}),
+    cargar("data/promo.json", null)
   ]);
-  aplicarTextos(textos);
+  aplicarTextos(Object.assign({}, textos, { portada: Object.assign({}, (textos || {}).portada, portada) }));
   const productos = (Array.isArray(datos.productos) ? datos.productos : [])
     .filter(p => p && p.nombre && p.foto && CAT[p.tipo]);
   aplicarAjustes(ajustes || {});
+  aplicarPromo(promo, ajustes || {});
   pintarCatalogo(productos);
-  pintarRuleta(productos);
+  pintarRuleta(productos, (portada || {}).ruleta);
 })();

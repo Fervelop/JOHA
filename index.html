@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>JOHA Joyería</title>
 <meta name="description" content="JOHA, accesorios y joyería femenina con baño de rodio. Brilla con tu esencia.">
-<meta name="theme-color" content="#5B2937">
+<meta name="theme-color" content="#2a141b">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -179,6 +179,8 @@ a{color:inherit}
 #promo .close{top:20px;right:20px}
 .promo::before{content:"";position:absolute;inset:10px;border:1px solid var(--line);border-radius:22px;pointer-events:none}
 .promo .logo-mark{display:block;width:120px;height:auto;margin:0 auto 22px}
+.promo-img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:20px;margin:0 0 22px;position:relative;z-index:1}
+[data-sec][hidden],.promo-img[hidden]{display:none!important}
 .promo h2{font-family:var(--serif);font-weight:400;font-size:clamp(2.1rem,7vw,2.8rem);line-height:1.05;margin:0}
 .promo .script{font-family:var(--script);font-size:2rem;line-height:1.2;color:var(--rosa-acento);margin:8px 0 18px}
 .promo p.txt{color:var(--ink-soft);margin:0 auto 28px;max-width:34ch}
@@ -319,10 +321,10 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
     <a class="mark" href="#inicio" aria-label="JOHA, inicio"><svg viewBox="0 0 341 180" width="84" height="44" aria-hidden="true"><use href="#logo-mark" width="341" height="180"/></svg></a>
     <nav aria-label="Principal"><ul>
       <li><a href="#catalogo">Catálogo</a></li>
-      <li><a href="#calidad">Calidad</a></li>
-      <li><a href="#cuidado">Cuidado</a></li>
-      <li><a href="#esencia">Nuestra esencia</a></li>
-      <li><a href="#pedido">Cómo pedir</a></li>
+      <li data-sec="calidad"><a href="#calidad">Calidad</a></li>
+      <li data-sec="cuidado"><a href="#cuidado">Cuidado</a></li>
+      <li data-sec="esencia"><a href="#esencia">Nuestra esencia</a></li>
+      <li data-sec="pedir"><a href="#pedido">Cómo pedir</a></li>
     </ul></nav>
     <div class="nav-actions">
       <button class="theme" id="tema" type="button" aria-label="Cambiar a modo oscuro">
@@ -373,7 +375,7 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
     </div>
   </section>
 
-  <section class="calidad" id="calidad">
+  <section class="calidad" id="calidad" data-sec="calidad">
     <div class="wrap">
       <div class="tarjeta">
         <div class="ph"><img class="fill" id="cal-fill" src="images/productos/aretes-flor-dorada.webp" alt="" aria-hidden="true" loading="lazy"><img class="main" id="cal-img" src="images/productos/aretes-flor-dorada.webp" alt="Pieza JOHA con acabado en espejo" loading="lazy"></div>
@@ -391,7 +393,7 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
     </div>
   </section>
 
-  <section class="cuidado" id="cuidado">
+  <section class="cuidado" id="cuidado" data-sec="cuidado">
     <div class="wrap">
       <div class="head">
         <h2 data-t="cuidado.titulo">Cuida tus piezas</h2>
@@ -408,7 +410,7 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
     </div>
   </section>
 
-  <section class="band" id="esencia">
+  <section class="band" id="esencia" data-sec="esencia">
     <div class="wrap">
       <svg class="rose" aria-hidden="true"><use href="#i-rose"/></svg>
       <p class="script" data-t="esencia.frase">Pequeños detalles, grandes emociones</p>
@@ -416,7 +418,7 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
     </div>
   </section>
 
-  <section class="order" id="pedido">
+  <section class="order" id="pedido" data-sec="pedir">
     <div class="wrap">
       <div class="intro">
         <h2 data-t="pedir.titulo">Cómo pedir</h2>
@@ -463,13 +465,14 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
     <svg class="sparkle p1" aria-hidden="true"><use href="#i-spark"/></svg>
     <svg class="sparkle p2" aria-hidden="true"><use href="#i-spark"/></svg>
     <button class="close" type="button" aria-label="Cerrar" id="promo-x">×</button>
-    <svg class="logo-mark" viewBox="0 0 341 180" aria-hidden="true"><use href="#logo-mark" width="341" height="180"/></svg>
+    <img class="promo-img" id="promo-img" src="" alt="" hidden>
+    <svg class="logo-mark" id="promo-logo" viewBox="0 0 341 180" aria-hidden="true"><use href="#logo-mark" width="341" height="180"/></svg>
     <h2 id="promo-t">Precios de lanzamiento</h2>
-    <p class="script">Brilla con tu esencia</p>
+    <p class="script" id="promo-frase">Brilla con tu esencia</p>
     <p class="txt" id="promo-txt">Estamos estrenando JOHA y lo celebramos contigo con precios especiales de lanzamiento. Escríbenos y conoce el valor de tu pieza favorita.</p>
     <div class="actions">
       <a class="btn btn-fill" href="#catalogo" id="promo-cat">Ver el catálogo</a>
-      <a class="btn btn-line wa" data-msg="Hola JOHA, me interesa saber más sobre tus accesorios 🌷 Vi que están con precios de lanzamiento." href="#" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Pedir por WhatsApp</a>
+      <a class="btn btn-line wa" id="promo-wa" data-msg="Hola JOHA, me interesa saber más sobre tus accesorios 🌷 Vi que están con precios de lanzamiento." href="#" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg><span id="promo-wa-txt">Pedir por WhatsApp</span></a>
     </div>
   </div>
 </dialog>
