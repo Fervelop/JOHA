@@ -316,10 +316,10 @@ collections:
               - { label: "Claro", value: "claro" }
             hint: "Cada visitante puede cambiarlo con el botón de luna/sol; su elección se recuerda."
           - name: carrito_activo
-            label: "¿Activar «Mi selección»?"
+            label: "¿Activar «Mi cotización»?"
             widget: boolean
             default: true
-            hint: "El corazón en cada pieza y la bolsa de arriba. La clienta arma su lista y la envía completa por WhatsApp."
+            hint: "El botón «Añadir a mi cotización» en cada pieza y la bolsa de arriba. La clienta arma su lista (máximo 5 por pieza) y la envía completa por WhatsApp."
           - name: secciones
             label: "Secciones visibles"
             widget: object

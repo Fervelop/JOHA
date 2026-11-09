@@ -208,28 +208,43 @@ a{color:inherit}
 .tips p{margin:0;color:var(--ink-soft)}
 
 
-/* ---------- Mi selección ---------- */
+/* ---------- Mi cotización ---------- */
 .cart-btn{position:relative;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;display:grid;place-items:center;transition:border-color .2s ease,color .2s ease}
 .cart-btn svg{width:20px;height:20px}
 @media (hover:hover) and (pointer:fine){.cart-btn:hover{border-color:var(--dorado);color:var(--dorado)}}
 .cart-count{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--dorado);color:#fff;font-size:.75rem;font-weight:500;line-height:20px;text-align:center}
 .cart-count.pop{animation:pop-count .35s var(--ease-out)}
 @keyframes pop-count{0%{transform:scale(.6)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
-
-.add{position:absolute;z-index:5;top:12px;right:12px;width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;
-  background:rgba(255,249,247,.92);color:#5B2937;box-shadow:0 6px 16px -8px rgba(91,41,55,.55);transition:transform .16s var(--ease-out),background-color .2s ease,color .2s ease}
-.add svg{width:20px;height:20px;color:#5B2937}
-.add[aria-pressed="true"] svg{color:#FFF9F7}
-.add .h-on{display:none}
-.add[aria-pressed="true"]{background:#5B2937;color:#FFF9F7}
-.add[aria-pressed="true"] .h-off{display:none}.add[aria-pressed="true"] .h-on{display:block}
-.add:active{transform:scale(.9)}
-@media (hover:hover) and (pointer:fine){.add:hover{transform:scale(1.06)}}
-
+/* control de cotización en cada tarjeta y en el detalle */
+.cot{margin-top:14px}
+.cot-add{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;padding:10px 16px;
+  border-radius:999px;border:1px solid var(--line);color:var(--ink);font-weight:500;font-size:.95rem;text-align:center;transition:border-color .2s ease,background-color .2s ease,transform .16s var(--ease-out)}
+.cot-add svg{width:18px;height:18px;flex:none}
+.cot-add:active{transform:scale(.97)}
+@media (hover:hover) and (pointer:fine){.cot-add:hover{border-color:var(--dorado);background:color-mix(in srgb,var(--rosa) 18%,transparent)}}
+.cot-add:focus-visible,.cot-step button:focus-visible{outline:2px solid var(--dorado);outline-offset:2px}
+.cot-on{display:flex;align-items:center;gap:10px;min-height:44px;flex-wrap:wrap}
+.cot-step{display:flex;align-items:center;border-radius:999px;background:var(--vino);color:#FFF9F7}
+.cot-step button{all:unset;cursor:pointer;width:40px;height:40px;display:grid;place-items:center;border-radius:50%;font-size:1.15rem;transition:transform .16s var(--ease-out)}
+.cot-step button:active{transform:scale(.88)}
+.cot-step button[disabled]{opacity:.35;cursor:not-allowed}
+.cot-step button svg{width:17px;height:17px}
+.cot-step output{min-width:22px;text-align:center;font-weight:500}
+.cot-agot{margin:14px 0 0;min-height:44px;display:flex;align-items:center;font-size:.9rem;color:var(--ink-soft)}
+.cot-lbl{font-size:.88rem;color:var(--ink-soft);line-height:1.3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cot-step{background:var(--rosa);color:#5B2937}}
+:root[data-theme="dark"] .cot-step{background:var(--rosa);color:#5B2937}
+.lb .cot{margin:0}
+.lb .cot-add{min-height:48px;font-size:1rem}
+.lb .cot[hidden]{display:none}
 .lb .acciones{display:flex;flex-direction:column;gap:10px}
 .lb .acciones .btn{justify-content:center}
-.lb-add[hidden]{display:none}
-.lb-add[aria-pressed="true"]{background:var(--rosa-suave);border-color:var(--dorado)}
+.linea .borrar{all:unset;cursor:pointer;width:40px;height:40px;display:grid;place-items:center;border-radius:50%;color:var(--ink-soft);transition:color .2s ease,background-color .2s ease}
+.linea .borrar svg{width:19px;height:19px}
+@media (hover:hover) and (pointer:fine){.linea .borrar:hover{color:#c0392b;background:color-mix(in srgb,#c0392b 12%,transparent)}}
+.linea .borrar:focus-visible{outline:2px solid var(--dorado)}
+.linea .der{display:flex;align-items:center;gap:4px}
+
 
 #cart{margin:0 0 0 auto;height:100%;max-height:100%;width:min(440px,100%);max-width:100%}
 #cart::backdrop{background:rgba(42,20,27,.55);backdrop-filter:blur(3px)}
@@ -242,14 +257,14 @@ a{color:inherit}
 .drawer .cuerpo{flex:1;overflow:auto;padding:8px 22px 18px}
 .drawer .vacia{color:var(--ink-soft);padding:36px 0;text-align:center}
 .drawer .vacia .script{font-family:var(--script);font-size:2rem;color:var(--rosa-acento);display:block;margin-bottom:6px}
-.linea{display:grid;grid-template-columns:72px 1fr auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
-.linea .mini{width:72px;height:72px;border-radius:14px;overflow:hidden;background:var(--rosa-suave);position:relative}
+.linea{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.linea .mini{width:64px;height:64px;border-radius:14px;overflow:hidden;background:var(--rosa-suave);position:relative}
 .linea .mini img{width:100%;height:100%;object-fit:cover;display:block}
-.linea h3{font-family:var(--serif);font-weight:400;font-size:1.15rem;line-height:1.2;margin:0 0 2px}
+.linea h3{font-family:var(--serif);font-weight:400;font-size:1.12rem;line-height:1.2;margin:0 0 2px}
 .linea .cat{font-size:.85rem;color:var(--ink-soft)}
-.linea .quitar{all:unset;cursor:pointer;font-size:.85rem;color:var(--ink-soft);text-decoration:underline;text-underline-offset:3px;margin-top:6px;display:inline-block}
 .cant{display:flex;align-items:center;border:1px solid var(--line);border-radius:999px}
 .cant button{all:unset;cursor:pointer;width:34px;height:34px;display:grid;place-items:center;font-size:1.1rem;color:var(--ink)}
+.cant button[disabled]{opacity:.35;cursor:not-allowed}
 .cant button:focus-visible{outline:2px solid var(--dorado);border-radius:50%}
 .cant output{min-width:22px;text-align:center;font-weight:500}
 .drawer label{display:block;font-size:.95rem;margin:18px 0 6px}
@@ -258,6 +273,7 @@ a{color:inherit}
 .drawer footer{padding:18px 22px 22px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
 .drawer footer .btn{justify-content:center}
 .drawer footer .resumen{font-size:.95rem;color:var(--ink-soft);margin:0 0 4px}
+.drawer footer[hidden],.drawer [hidden]{display:none}
 .vaciar{all:unset;cursor:pointer;align-self:center;font-size:.9rem;color:var(--ink-soft);text-decoration:underline;text-underline-offset:3px;padding:4px}
 @media (prefers-reduced-motion:reduce){.drawer{transition:none}.cart-count.pop{animation:none}}
 [data-carrito="off"] .cart-ui{display:none!important}
@@ -368,8 +384,8 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
   <symbol id="i-shield" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M24 5 39 10v12c0 10-6.5 17.5-15 21-8.5-3.5-15-11-15-21V10z"/><path d="m17 24 5 5 9-10"/></g></symbol>
   <symbol id="i-mirror" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="24" cy="20" rx="12" ry="14"/><path d="M24 34v9M19 43h10"/><path d="M18 15c1.5-3 3.5-4.5 6-5M17 20.5l4.5-4.5"/><path d="M40 6v5M37.5 8.5h5" stroke-width="1.2"/></g></symbol>
   <symbol id="i-spark" viewBox="0 0 24 24"><path fill="currentColor" d="M12 0c.6 6.2 5.8 11.4 12 12-6.2.6-11.4 5.8-12 12-.6-6.2-5.8-11.4-12-12C6.2 11.4 11.4 6.2 12 0z"/></symbol>
-  <symbol id="i-heart" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></symbol>
-  <symbol id="i-heart-fill" viewBox="0 0 24 24"><path fill="currentColor" d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M5.5 8h13l-1 12.5h-11zM9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M4.5 7h15M9.5 7V4.8h5V7M6.5 7l.9 12.2a1.5 1.5 0 0 0 1.5 1.3h6.2a1.5 1.5 0 0 0 1.5-1.3L17.5 7M10.3 11v6M13.7 11v6"/></symbol>
   <symbol id="i-wa" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.6.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2s.2-1.1.2-1.2l-.4-.3z"/></symbol>
 </svg>
 
@@ -384,8 +400,8 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
       <li data-sec="pedir"><a href="#pedido">Cómo pedir</a></li>
     </ul></nav>
     <div class="nav-actions">
-      <button class="cart-btn cart-ui" id="cart-open" type="button" aria-label="Mi selección: vacía">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M5.5 8h13l-1 12.5h-11zM9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+      <button class="cart-btn cart-ui" id="cart-open" type="button" aria-label="Mi cotización: vacía">
+        <svg aria-hidden="true"><use href="#i-bag"/></svg>
         <span class="cart-count" id="cart-count" aria-hidden="true" hidden>0</span>
       </button>
       <button class="theme" id="tema" type="button" aria-label="Cambiar a modo oscuro">
@@ -517,7 +533,7 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
       <p class="material"><svg aria-hidden="true"><use href="#i-shine"/></svg>Baño de rodio con acabado en espejo</p>
       <p class="note" id="lb-n">Escríbenos y te confirmamos precio y disponibilidad de esta pieza.</p>
       <div class="acciones">
-        <button class="btn btn-line lb-add cart-ui" id="lb-add" type="button" aria-pressed="false"><svg><use href="#i-heart"/></svg><span>Agregar a mi selección</span></button>
+        <div class="cot cart-ui" id="lb-cot"></div>
         <a class="btn btn-fill" id="lb-wa" href="#" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Consultar por WhatsApp</a>
       </div>
     </div>
@@ -544,12 +560,12 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
 <dialog id="cart" aria-labelledby="cart-t" class="cart-ui">
   <div class="drawer">
     <header>
-      <h2 id="cart-t">Mi selección</h2>
+      <h2 id="cart-t">Mi cotización</h2>
       <button class="close" type="button" aria-label="Cerrar" id="cart-x">×</button>
     </header>
     <div class="cuerpo">
       <ul id="cart-lista" style="list-style:none;margin:0;padding:0"></ul>
-      <div class="vacia" id="cart-vacia"><span class="script">Aún no eliges</span>Toca el corazón de las piezas que te gusten y aparecerán aquí.</div>
+      <div class="vacia" id="cart-vacia"><span class="script">Aún no hay piezas</span>Toca «Añadir a mi cotización» en las piezas que te gusten y aparecerán aquí.</div>
       <div id="cart-nota-box">
         <label for="cart-nota">¿Algo que debamos saber? (opcional)</label>
         <textarea id="cart-nota" maxlength="300" placeholder="Ej.: es para regalo, ciudad de entrega…"></textarea>
@@ -557,8 +573,8 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
     </div>
     <footer id="cart-pie">
       <p class="resumen" id="cart-resumen" aria-live="polite"></p>
-      <a class="btn btn-fill" id="cart-enviar" href="#" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Enviar mi pedido por WhatsApp</a>
-      <button class="vaciar" type="button" id="cart-vaciar">Vaciar selección</button>
+      <a class="btn btn-fill" id="cart-enviar" href="#" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Enviar mi cotización por WhatsApp</a>
+      <button class="vaciar" type="button" id="cart-vaciar">Vaciar cotización</button>
     </footer>
   </div>
 </dialog>

@@ -95,34 +95,34 @@ function abrir(p) {
     ? "Esta pieza está agotada por ahora. Escríbenos y te avisamos cuando vuelva."
     : "Escríbenos y te confirmamos precio y disponibilidad de esta pieza.";
   $("lb-wa").href = waLink(`${MSG}\nPieza: ${p.nombre}`);
-  const la = $("lb-add");
-  la.dataset.n = p.nombre;
-  la.hidden = !!p.agotado || !Carrito.activo();
+  const lc = $("lb-cot");
+  if (p.agotado || !Carrito.activo()) { lc.hidden = true; delete lc.dataset.n; }
+  else { lc.hidden = false; lc.dataset.n = p.nombre; }
   Carrito.pintar(false);
   lb.showModal();
 }
 $("lb-x").addEventListener("click", () => lb.close());
-$("lb-add").addEventListener("click", () => Carrito.alternar($("lb-add").dataset.n));
 lb.addEventListener("click", e => { if (e.target === lb) lb.close(); });
 
-/* ---------- Mi selección (carrito sin pagos: el pedido se envía por WhatsApp) ---------- */
+/* ---------- Mi cotización (sin pagos: la lista se envía por WhatsApp) ---------- */
 const Carrito = (() => {
-  const KEY = "joha-seleccion";
-  let items = [];            // [{nombre, cant}]
-  let porNombre = new Map(); // nombre -> producto
+  const KEY = "joha-seleccion";   // se mantiene la clave para no perder listas guardadas
+  const MAX = 5;
+  let items = [];                 // [{nombre, cant}]
+  let porNombre = new Map();
   let activo = true;
   const leer = () => { try { const v = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; } };
   const guardar = () => { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch (e) {} };
   const total = () => items.reduce((s, i) => s + i.cant, 0);
-  const tiene = n => items.some(i => i.nombre === n);
+  const cant = n => (items.find(i => i.nombre === n) || {}).cant || 0;
+  const piezas = n => `${n} ${n === 1 ? "pieza" : "piezas"}`;
 
   function iniciar(productos, on) {
     activo = on !== false;
     if (!activo) { document.documentElement.dataset.carrito = "off"; return; }
     porNombre = new Map(productos.map(p => [p.nombre, p]));
-    // quitar piezas que ya no existen o se agotaron
     items = leer().filter(i => i && porNombre.has(i.nombre) && !porNombre.get(i.nombre).agotado)
-      .map(i => ({ nombre: i.nombre, cant: Math.min(10, Math.max(1, i.cant | 0)) }));
+      .map(i => ({ nombre: i.nombre, cant: Math.min(MAX, Math.max(1, i.cant | 0)) }));
     guardar();
     $("cart-open").addEventListener("click", abrirCajon);
     $("cart-x").addEventListener("click", cerrarCajon);
@@ -130,28 +130,48 @@ const Carrito = (() => {
     $("cart").addEventListener("cancel", e => { e.preventDefault(); cerrarCajon(); });
     $("cart-vaciar").addEventListener("click", () => { items = []; guardar(); pintar(); });
     $("cart-nota").addEventListener("input", actualizarEnlace);
+    // un solo escuchador para todos los controles de cantidad (tarjetas y detalle)
+    document.addEventListener("click", e => {
+      const b = e.target.closest(".cot [data-act]");
+      if (!b) return;
+      const n = b.closest(".cot").dataset.n;
+      if (b.dataset.act === "add") cambiar(n, +1, true);
+      else if (b.dataset.act === "mas") cambiar(n, +1, true);
+      else if (b.dataset.act === "menos") cambiar(n, -1);
+      const nueva = document.querySelector(`.cot[data-n="${CSS.escape(n)}"] [data-act="${b.dataset.act === "add" ? "mas" : b.dataset.act}"]`)
+        || document.querySelector(`.cot[data-n="${CSS.escape(n)}"] [data-act="add"]`);
+      if (nueva && b.closest("#lb") === nueva.closest("#lb")) nueva.focus();
+    });
     pintar(false);
   }
 
-  function alternar(nombre) {
+  function cambiar(nombre, d, animar) {
     const p = porNombre.get(nombre);
     if (!p || p.agotado) return;
-    if (tiene(nombre)) items = items.filter(i => i.nombre !== nombre);
-    else items.push({ nombre, cant: 1 });
-    guardar(); pintar(true);
-  }
-  function cambiar(nombre, d) {
-    const it = items.find(i => i.nombre === nombre);
+    let it = items.find(i => i.nombre === nombre);
+    if (!it && d > 0) { it = { nombre, cant: 0 }; items.push(it); }
     if (!it) return;
-    it.cant = Math.min(10, Math.max(1, it.cant + d));
-    guardar(); pintar(false);
+    it.cant = Math.min(MAX, it.cant + d);
+    if (it.cant <= 0) items = items.filter(i => i !== it);
+    guardar(); pintar(animar);
   }
   function quitar(nombre) { items = items.filter(i => i.nombre !== nombre); guardar(); pintar(false); }
+
+  /* control que va debajo de cada tarjeta y en el detalle */
+  function control(nombre) {
+    const c = cant(nombre);
+    if (!c) return `<button type="button" class="cot-add" data-act="add"><svg aria-hidden="true"><use href="#i-bag"/></svg>Añadir a mi cotización</button>`;
+    return `<div class="cot-on"><div class="cot-step" role="group" aria-label="Cantidad de ${esc(nombre)} en tu cotización">
+        <button type="button" data-act="menos" aria-label="${c === 1 ? "Quitar de la cotización" : "Quitar una"}">${c === 1 ? '<svg aria-hidden="true"><use href="#i-trash"/></svg>' : "−"}</button>
+        <output aria-live="polite">${c}</output>
+        <button type="button" data-act="mas" aria-label="Añadir una" ${c >= MAX ? "disabled" : ""}>+</button></div>
+        <span class="cot-lbl">${c >= MAX ? `Máximo ${MAX} por pieza` : "En tu cotización"}</span></div>`;
+  }
 
   function mensaje() {
     const lineas = items.map(i => `• ${i.cant} × ${i.nombre}`);
     const nota = $("cart-nota").value.trim();
-    return `${MSG}\nQuiero pedir:\n${lineas.join("\n")}` + (nota ? `\n\nNota: ${nota}` : "") + "\n\n¿Me cuentas precio y disponibilidad?";
+    return `${MSG}\nQuiero cotizar:\n${lineas.join("\n")}` + (nota ? `\n\nNota: ${nota}` : "") + "\n\n¿Me cuentas precio y disponibilidad?";
   }
   function actualizarEnlace() { $("cart-enviar").href = waLink(mensaje()); }
 
@@ -160,21 +180,9 @@ const Carrito = (() => {
     const n = total(), c = $("cart-count");
     c.textContent = n; c.hidden = n === 0;
     if (animar && n) { c.classList.remove("pop"); void c.offsetWidth; c.classList.add("pop"); }
-    $("cart-open").setAttribute("aria-label", n ? `Mi selección: ${n} ${n === 1 ? "pieza" : "piezas"}` : "Mi selección: vacía");
-    // corazones de las tarjetas y del detalle
-    document.querySelectorAll(".add[data-n]").forEach(b => {
-      const on = tiene(b.dataset.n);
-      b.setAttribute("aria-pressed", on);
-      b.setAttribute("aria-label", (on ? "Quitar de mi selección: " : "Agregar a mi selección: ") + b.dataset.n);
-    });
-    const la = $("lb-add");
-    if (la.dataset.n) {
-      const on = tiene(la.dataset.n);
-      la.setAttribute("aria-pressed", on);
-      la.querySelector("span").textContent = on ? "En tu selección · quitar" : "Agregar a mi selección";
-      la.querySelector("use").setAttribute("href", on ? "#i-heart-fill" : "#i-heart");
-    }
-    // lista
+    $("cart-open").setAttribute("aria-label", n ? `Mi cotización: ${piezas(n)}` : "Mi cotización: vacía");
+    document.querySelectorAll(".cot[data-n]").forEach(el => { el.innerHTML = control(el.dataset.n); });
+
     const ul = $("cart-lista");
     ul.textContent = "";
     items.forEach(i => {
@@ -182,19 +190,22 @@ const Carrito = (() => {
       const li = document.createElement("li");
       li.className = "linea";
       li.innerHTML = `<div class="mini"><img src="${esc(imgUrl(p.foto, 160))}" alt=""></div>
-        <div><h3>${esc(p.nombre)}</h3><span class="cat">${esc(CAT[p.tipo] || "")}</span><br><button type="button" class="quitar">Quitar</button></div>
-        <div class="cant" role="group" aria-label="Cantidad de ${esc(p.nombre)}">
-          <button type="button" class="menos" aria-label="Quitar una">−</button><output>${i.cant}</output><button type="button" class="mas" aria-label="Agregar una">+</button></div>`;
+        <div><h3>${esc(p.nombre)}</h3><span class="cat">${esc(CAT[p.tipo] || "")}</span></div>
+        <div class="der">
+          <div class="cant" role="group" aria-label="Cantidad de ${esc(p.nombre)}">
+            <button type="button" class="menos" aria-label="Quitar una" ${i.cant <= 1 ? "disabled" : ""}>−</button><output>${i.cant}</output><button type="button" class="mas" aria-label="Añadir una" ${i.cant >= MAX ? "disabled" : ""}>+</button></div>
+          <button type="button" class="borrar" aria-label="Quitar ${esc(p.nombre)} de la cotización"><svg aria-hidden="true"><use href="#i-trash"/></svg></button>
+        </div>`;
       li.querySelector(".menos").addEventListener("click", () => cambiar(i.nombre, -1));
       li.querySelector(".mas").addEventListener("click", () => cambiar(i.nombre, +1));
-      li.querySelector(".quitar").addEventListener("click", () => quitar(i.nombre));
+      li.querySelector(".borrar").addEventListener("click", () => quitar(i.nombre));
       ul.appendChild(li);
     });
     const vacia = items.length === 0;
     $("cart-vacia").hidden = !vacia;
     $("cart-nota-box").hidden = vacia;
     $("cart-pie").hidden = vacia;
-    $("cart-resumen").textContent = vacia ? "" : `${n} ${n === 1 ? "pieza" : "piezas"} en tu selección. Te confirmamos precio y disponibilidad por WhatsApp.`;
+    $("cart-resumen").textContent = vacia ? "" : `${piezas(n)} en tu cotización. Te confirmamos precio y disponibilidad por WhatsApp.`;
     actualizarEnlace();
   }
 
@@ -213,7 +224,7 @@ const Carrito = (() => {
     else { d.addEventListener("transitionend", fin); setTimeout(fin, 500); }
   }
 
-  return { iniciar, alternar, pintar, tiene, activo: () => activo };
+  return { iniciar, pintar, activo: () => activo };
 })();
 
 /* ---------- catálogo ---------- */
@@ -233,12 +244,15 @@ function pintarCatalogo(productos) {
       <h3>${esc(p.nombre)}</h3><span class="cat">${esc(CAT[p.tipo] || "")}</span></button>`;
     li.querySelector(".open").addEventListener("click", () => abrir(p));
     if (!p.agotado) {
-      const add = document.createElement("button");
-      add.type = "button"; add.className = "add cart-ui"; add.dataset.n = p.nombre;
-      add.setAttribute("aria-pressed", "false");
-      add.innerHTML = '<svg class="h-off" aria-hidden="true"><use href="#i-heart"/></svg><svg class="h-on" aria-hidden="true"><use href="#i-heart-fill"/></svg>';
-      add.addEventListener("click", () => Carrito.alternar(p.nombre));
-      li.appendChild(add);
+      const cot = document.createElement("div");
+      cot.className = "cot cart-ui";
+      cot.dataset.n = p.nombre;
+      li.appendChild(cot);
+    } else {
+      const ag = document.createElement("p");
+      ag.className = "cot-agot cart-ui";
+      ag.textContent = "Agotada por ahora";
+      li.appendChild(ag);
     }
     grid.appendChild(li);
   });
