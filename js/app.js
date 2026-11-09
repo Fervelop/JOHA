@@ -95,10 +95,126 @@ function abrir(p) {
     ? "Esta pieza está agotada por ahora. Escríbenos y te avisamos cuando vuelva."
     : "Escríbenos y te confirmamos precio y disponibilidad de esta pieza.";
   $("lb-wa").href = waLink(`${MSG}\nPieza: ${p.nombre}`);
+  const la = $("lb-add");
+  la.dataset.n = p.nombre;
+  la.hidden = !!p.agotado || !Carrito.activo();
+  Carrito.pintar(false);
   lb.showModal();
 }
 $("lb-x").addEventListener("click", () => lb.close());
+$("lb-add").addEventListener("click", () => Carrito.alternar($("lb-add").dataset.n));
 lb.addEventListener("click", e => { if (e.target === lb) lb.close(); });
+
+/* ---------- Mi selección (carrito sin pagos: el pedido se envía por WhatsApp) ---------- */
+const Carrito = (() => {
+  const KEY = "joha-seleccion";
+  let items = [];            // [{nombre, cant}]
+  let porNombre = new Map(); // nombre -> producto
+  let activo = true;
+  const leer = () => { try { const v = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; } };
+  const guardar = () => { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch (e) {} };
+  const total = () => items.reduce((s, i) => s + i.cant, 0);
+  const tiene = n => items.some(i => i.nombre === n);
+
+  function iniciar(productos, on) {
+    activo = on !== false;
+    if (!activo) { document.documentElement.dataset.carrito = "off"; return; }
+    porNombre = new Map(productos.map(p => [p.nombre, p]));
+    // quitar piezas que ya no existen o se agotaron
+    items = leer().filter(i => i && porNombre.has(i.nombre) && !porNombre.get(i.nombre).agotado)
+      .map(i => ({ nombre: i.nombre, cant: Math.min(10, Math.max(1, i.cant | 0)) }));
+    guardar();
+    $("cart-open").addEventListener("click", abrirCajon);
+    $("cart-x").addEventListener("click", cerrarCajon);
+    $("cart").addEventListener("click", e => { if (e.target === $("cart")) cerrarCajon(); });
+    $("cart").addEventListener("cancel", e => { e.preventDefault(); cerrarCajon(); });
+    $("cart-vaciar").addEventListener("click", () => { items = []; guardar(); pintar(); });
+    $("cart-nota").addEventListener("input", actualizarEnlace);
+    pintar(false);
+  }
+
+  function alternar(nombre) {
+    const p = porNombre.get(nombre);
+    if (!p || p.agotado) return;
+    if (tiene(nombre)) items = items.filter(i => i.nombre !== nombre);
+    else items.push({ nombre, cant: 1 });
+    guardar(); pintar(true);
+  }
+  function cambiar(nombre, d) {
+    const it = items.find(i => i.nombre === nombre);
+    if (!it) return;
+    it.cant = Math.min(10, Math.max(1, it.cant + d));
+    guardar(); pintar(false);
+  }
+  function quitar(nombre) { items = items.filter(i => i.nombre !== nombre); guardar(); pintar(false); }
+
+  function mensaje() {
+    const lineas = items.map(i => `• ${i.cant} × ${i.nombre}`);
+    const nota = $("cart-nota").value.trim();
+    return `${MSG}\nQuiero pedir:\n${lineas.join("\n")}` + (nota ? `\n\nNota: ${nota}` : "") + "\n\n¿Me cuentas precio y disponibilidad?";
+  }
+  function actualizarEnlace() { $("cart-enviar").href = waLink(mensaje()); }
+
+  function pintar(animar) {
+    if (!activo) return;
+    const n = total(), c = $("cart-count");
+    c.textContent = n; c.hidden = n === 0;
+    if (animar && n) { c.classList.remove("pop"); void c.offsetWidth; c.classList.add("pop"); }
+    $("cart-open").setAttribute("aria-label", n ? `Mi selección: ${n} ${n === 1 ? "pieza" : "piezas"}` : "Mi selección: vacía");
+    // corazones de las tarjetas y del detalle
+    document.querySelectorAll(".add[data-n]").forEach(b => {
+      const on = tiene(b.dataset.n);
+      b.setAttribute("aria-pressed", on);
+      b.setAttribute("aria-label", (on ? "Quitar de mi selección: " : "Agregar a mi selección: ") + b.dataset.n);
+    });
+    const la = $("lb-add");
+    if (la.dataset.n) {
+      const on = tiene(la.dataset.n);
+      la.setAttribute("aria-pressed", on);
+      la.querySelector("span").textContent = on ? "En tu selección · quitar" : "Agregar a mi selección";
+      la.querySelector("use").setAttribute("href", on ? "#i-heart-fill" : "#i-heart");
+    }
+    // lista
+    const ul = $("cart-lista");
+    ul.textContent = "";
+    items.forEach(i => {
+      const p = porNombre.get(i.nombre);
+      const li = document.createElement("li");
+      li.className = "linea";
+      li.innerHTML = `<div class="mini"><img src="${esc(imgUrl(p.foto, 160))}" alt=""></div>
+        <div><h3>${esc(p.nombre)}</h3><span class="cat">${esc(CAT[p.tipo] || "")}</span><br><button type="button" class="quitar">Quitar</button></div>
+        <div class="cant" role="group" aria-label="Cantidad de ${esc(p.nombre)}">
+          <button type="button" class="menos" aria-label="Quitar una">−</button><output>${i.cant}</output><button type="button" class="mas" aria-label="Agregar una">+</button></div>`;
+      li.querySelector(".menos").addEventListener("click", () => cambiar(i.nombre, -1));
+      li.querySelector(".mas").addEventListener("click", () => cambiar(i.nombre, +1));
+      li.querySelector(".quitar").addEventListener("click", () => quitar(i.nombre));
+      ul.appendChild(li);
+    });
+    const vacia = items.length === 0;
+    $("cart-vacia").hidden = !vacia;
+    $("cart-nota-box").hidden = vacia;
+    $("cart-pie").hidden = vacia;
+    $("cart-resumen").textContent = vacia ? "" : `${n} ${n === 1 ? "pieza" : "piezas"} en tu selección. Te confirmamos precio y disponibilidad por WhatsApp.`;
+    actualizarEnlace();
+  }
+
+  function abrirCajon() {
+    const d = $("cart");
+    if (lb.open) lb.close();
+    d.showModal();
+    requestAnimationFrame(() => requestAnimationFrame(() => d.classList.add("in")));
+  }
+  function cerrarCajon() {
+    const d = $("cart");
+    if (!d.open) return;
+    d.classList.remove("in");
+    const fin = () => { d.removeEventListener("transitionend", fin); if (!d.classList.contains("in")) d.close(); };
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) d.close();
+    else { d.addEventListener("transitionend", fin); setTimeout(fin, 500); }
+  }
+
+  return { iniciar, alternar, pintar, tiene, activo: () => activo };
+})();
 
 /* ---------- catálogo ---------- */
 function pintarCatalogo(productos) {
@@ -112,10 +228,18 @@ function pintarCatalogo(productos) {
     const li = document.createElement("li");
     li.className = "item" + (p.agotado ? " agotado" : "");
     li.dataset.c = p.tipo;
-    li.innerHTML = `<button type="button" aria-label="Ver ${esc(p.nombre)}${p.agotado ? ", agotado" : ""}">
+    li.innerHTML = `<button type="button" class="open" aria-label="Ver ${esc(p.nombre)}${p.agotado ? ", agotado" : ""}">
       <div class="tarjeta">${p.agotado ? '<span class="badge">Agotado</span>' : ""}${ph(p.foto, p.nombre + ", JOHA", 700, true)}${(p.fotos || []).length > 1 ? `<span class="mas-fotos">${p.fotos.length} fotos</span>` : ""}</div>
       <h3>${esc(p.nombre)}</h3><span class="cat">${esc(CAT[p.tipo] || "")}</span></button>`;
-    li.querySelector("button").addEventListener("click", () => abrir(p));
+    li.querySelector(".open").addEventListener("click", () => abrir(p));
+    if (!p.agotado) {
+      const add = document.createElement("button");
+      add.type = "button"; add.className = "add cart-ui"; add.dataset.n = p.nombre;
+      add.setAttribute("aria-pressed", "false");
+      add.innerHTML = '<svg class="h-off" aria-hidden="true"><use href="#i-heart"/></svg><svg class="h-on" aria-hidden="true"><use href="#i-heart-fill"/></svg>';
+      add.addEventListener("click", () => Carrito.alternar(p.nombre));
+      li.appendChild(add);
+    }
     grid.appendChild(li);
   });
 }
@@ -273,5 +397,6 @@ function aplicarTextos(t) {
   aplicarAjustes(ajustes || {});
   aplicarPromo(promo, ajustes || {});
   pintarCatalogo(productos);
+  Carrito.iniciar(productos, (ajustes || {}).carrito_activo);
   pintarRuleta(productos, (portada || {}).ruleta);
 })();

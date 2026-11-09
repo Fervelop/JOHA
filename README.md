@@ -95,7 +95,11 @@ una pieza entre la 10 y la 20.
 - *Textos de las secciones*: calidad, cuidado, esencia y cómo pedir. Para una
   palabra en negrita, escríbela entre `**asteriscos**`.
 - *Ajustes generales*: WhatsApp, Instagram, modo con el que abre la página
-  (oscuro por defecto) y qué secciones se ven.
+  (oscuro por defecto), «Mi selección» y qué secciones se ven.
+
+**Mi selección:** la clienta toca el corazón de cada pieza, ajusta cantidades,
+agrega una nota y envía la lista completa por WhatsApp. No hay pagos en la página;
+la lista se guarda solo en su navegador. Las piezas agotadas no se pueden agregar.
 
 ## Cómo funciona por dentro
 

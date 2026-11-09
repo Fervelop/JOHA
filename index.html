@@ -138,11 +138,12 @@ a{color:inherit}
 .filters button:hover{border-color:var(--dorado)}
 .filters button[aria-pressed="true"]{background:var(--rosa);border-color:var(--rosa);color:#5B2937}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:44px 32px;list-style:none;margin:0;padding:0}
-.item button{all:unset;display:block;cursor:pointer;width:100%}
-.item button:focus-visible .tarjeta{outline:2px solid var(--dorado);outline-offset:5px}
+.item{position:relative}
+.item .open{all:unset;display:block;cursor:pointer;width:100%}
+.item .open:focus-visible .tarjeta{outline:2px solid var(--dorado);outline-offset:5px}
 .item .tarjeta{aspect-ratio:1/1.08}
 .item .ph .main{transition:transform .5s var(--ease-out)}
-@media (hover:hover) and (pointer:fine){.item button:hover .ph .main{transform:scale(1.04)}}
+@media (hover:hover) and (pointer:fine){.item .open:hover .ph .main{transform:scale(1.04)}}
 .badge{position:absolute;z-index:4;top:14px;left:14px;font-family:var(--sans);font-weight:500;font-size:.85rem;line-height:1;padding:8px 14px;border-radius:999px;background:var(--vino);color:#FFF9F7}
 .item.agotado .ph .main,.lb.agotado .ph .main{filter:grayscale(.45) opacity(.82)}
 .lb .badge{position:static;display:inline-block;align-self:flex-start;margin-bottom:14px}
@@ -206,6 +207,60 @@ a{color:inherit}
 .tips h3{font-family:var(--serif);font-weight:400;font-size:1.3rem;margin:0 0 4px}
 .tips p{margin:0;color:var(--ink-soft)}
 
+
+/* ---------- Mi selección ---------- */
+.cart-btn{position:relative;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;display:grid;place-items:center;transition:border-color .2s ease,color .2s ease}
+.cart-btn svg{width:20px;height:20px}
+@media (hover:hover) and (pointer:fine){.cart-btn:hover{border-color:var(--dorado);color:var(--dorado)}}
+.cart-count{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--dorado);color:#fff;font-size:.75rem;font-weight:500;line-height:20px;text-align:center}
+.cart-count.pop{animation:pop-count .35s var(--ease-out)}
+@keyframes pop-count{0%{transform:scale(.6)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+
+.add{position:absolute;z-index:5;top:12px;right:12px;width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;
+  background:rgba(255,249,247,.92);color:#5B2937;box-shadow:0 6px 16px -8px rgba(91,41,55,.55);transition:transform .16s var(--ease-out),background-color .2s ease,color .2s ease}
+.add svg{width:20px;height:20px;color:#5B2937}
+.add[aria-pressed="true"] svg{color:#FFF9F7}
+.add .h-on{display:none}
+.add[aria-pressed="true"]{background:#5B2937;color:#FFF9F7}
+.add[aria-pressed="true"] .h-off{display:none}.add[aria-pressed="true"] .h-on{display:block}
+.add:active{transform:scale(.9)}
+@media (hover:hover) and (pointer:fine){.add:hover{transform:scale(1.06)}}
+
+.lb .acciones{display:flex;flex-direction:column;gap:10px}
+.lb .acciones .btn{justify-content:center}
+.lb-add[hidden]{display:none}
+.lb-add[aria-pressed="true"]{background:var(--rosa-suave);border-color:var(--dorado)}
+
+#cart{margin:0 0 0 auto;height:100%;max-height:100%;width:min(440px,100%);max-width:100%}
+#cart::backdrop{background:rgba(42,20,27,.55);backdrop-filter:blur(3px)}
+.drawer{height:100%;background:var(--bg);display:flex;flex-direction:column;border-left:1px solid var(--line);
+  transform:translateX(100%);transition:transform .42s cubic-bezier(.32,.72,0,1)}
+#cart.in .drawer{transform:none}
+.drawer header{display:flex;align-items:center;justify-content:space-between;padding:22px 22px 18px;border-bottom:1px solid var(--line)}
+.drawer h2{font-family:var(--serif);font-weight:400;font-size:1.9rem;margin:0}
+.drawer .close{position:static}
+.drawer .cuerpo{flex:1;overflow:auto;padding:8px 22px 18px}
+.drawer .vacia{color:var(--ink-soft);padding:36px 0;text-align:center}
+.drawer .vacia .script{font-family:var(--script);font-size:2rem;color:var(--rosa-acento);display:block;margin-bottom:6px}
+.linea{display:grid;grid-template-columns:72px 1fr auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.linea .mini{width:72px;height:72px;border-radius:14px;overflow:hidden;background:var(--rosa-suave);position:relative}
+.linea .mini img{width:100%;height:100%;object-fit:cover;display:block}
+.linea h3{font-family:var(--serif);font-weight:400;font-size:1.15rem;line-height:1.2;margin:0 0 2px}
+.linea .cat{font-size:.85rem;color:var(--ink-soft)}
+.linea .quitar{all:unset;cursor:pointer;font-size:.85rem;color:var(--ink-soft);text-decoration:underline;text-underline-offset:3px;margin-top:6px;display:inline-block}
+.cant{display:flex;align-items:center;border:1px solid var(--line);border-radius:999px}
+.cant button{all:unset;cursor:pointer;width:34px;height:34px;display:grid;place-items:center;font-size:1.1rem;color:var(--ink)}
+.cant button:focus-visible{outline:2px solid var(--dorado);border-radius:50%}
+.cant output{min-width:22px;text-align:center;font-weight:500}
+.drawer label{display:block;font-size:.95rem;margin:18px 0 6px}
+.drawer textarea{width:100%;min-height:76px;resize:vertical;font:inherit;font-size:1rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.drawer textarea:focus{outline:2px solid var(--dorado);outline-offset:1px}
+.drawer footer{padding:18px 22px 22px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.drawer footer .btn{justify-content:center}
+.drawer footer .resumen{font-size:.95rem;color:var(--ink-soft);margin:0 0 4px}
+.vaciar{all:unset;cursor:pointer;align-self:center;font-size:.9rem;color:var(--ink-soft);text-decoration:underline;text-underline-offset:3px;padding:4px}
+@media (prefers-reduced-motion:reduce){.drawer{transition:none}.cart-count.pop{animation:none}}
+[data-carrito="off"] .cart-ui{display:none!important}
 /* ---------- Band ---------- */
 .band{background:var(--band-bg);color:var(--band-ink);padding:110px 0;text-align:center;position:relative;overflow:hidden}
 .band .script{font-family:var(--script);font-size:clamp(2.6rem,7vw,5.4rem);line-height:1.1;margin:0;color:var(--rosa)}
@@ -313,6 +368,8 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
   <symbol id="i-shield" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M24 5 39 10v12c0 10-6.5 17.5-15 21-8.5-3.5-15-11-15-21V10z"/><path d="m17 24 5 5 9-10"/></g></symbol>
   <symbol id="i-mirror" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="24" cy="20" rx="12" ry="14"/><path d="M24 34v9M19 43h10"/><path d="M18 15c1.5-3 3.5-4.5 6-5M17 20.5l4.5-4.5"/><path d="M40 6v5M37.5 8.5h5" stroke-width="1.2"/></g></symbol>
   <symbol id="i-spark" viewBox="0 0 24 24"><path fill="currentColor" d="M12 0c.6 6.2 5.8 11.4 12 12-6.2.6-11.4 5.8-12 12-.6-6.2-5.8-11.4-12-12C6.2 11.4 11.4 6.2 12 0z"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></symbol>
+  <symbol id="i-heart-fill" viewBox="0 0 24 24"><path fill="currentColor" d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></symbol>
   <symbol id="i-wa" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.6.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2s.2-1.1.2-1.2l-.4-.3z"/></symbol>
 </svg>
 
@@ -327,6 +384,10 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
       <li data-sec="pedir"><a href="#pedido">Cómo pedir</a></li>
     </ul></nav>
     <div class="nav-actions">
+      <button class="cart-btn cart-ui" id="cart-open" type="button" aria-label="Mi selección: vacía">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M5.5 8h13l-1 12.5h-11zM9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+        <span class="cart-count" id="cart-count" aria-hidden="true" hidden>0</span>
+      </button>
       <button class="theme" id="tema" type="button" aria-label="Cambiar a modo oscuro">
         <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
         <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></g></svg>
@@ -455,7 +516,10 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
       <p class="cat" id="lb-c"></p>
       <p class="material"><svg aria-hidden="true"><use href="#i-shine"/></svg>Baño de rodio con acabado en espejo</p>
       <p class="note" id="lb-n">Escríbenos y te confirmamos precio y disponibilidad de esta pieza.</p>
-      <a class="btn btn-fill" id="lb-wa" href="#" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Consultar por WhatsApp</a>
+      <div class="acciones">
+        <button class="btn btn-line lb-add cart-ui" id="lb-add" type="button" aria-pressed="false"><svg><use href="#i-heart"/></svg><span>Agregar a mi selección</span></button>
+        <a class="btn btn-fill" id="lb-wa" href="#" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Consultar por WhatsApp</a>
+      </div>
     </div>
   </div>
 </dialog>
@@ -474,6 +538,28 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
       <a class="btn btn-fill" href="#catalogo" id="promo-cat">Ver el catálogo</a>
       <a class="btn btn-line wa" id="promo-wa" data-msg="Hola JOHA, me interesa saber más sobre tus accesorios 🌷 Vi que están con precios de lanzamiento." href="#" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg><span id="promo-wa-txt">Pedir por WhatsApp</span></a>
     </div>
+  </div>
+</dialog>
+
+<dialog id="cart" aria-labelledby="cart-t" class="cart-ui">
+  <div class="drawer">
+    <header>
+      <h2 id="cart-t">Mi selección</h2>
+      <button class="close" type="button" aria-label="Cerrar" id="cart-x">×</button>
+    </header>
+    <div class="cuerpo">
+      <ul id="cart-lista" style="list-style:none;margin:0;padding:0"></ul>
+      <div class="vacia" id="cart-vacia"><span class="script">Aún no eliges</span>Toca el corazón de las piezas que te gusten y aparecerán aquí.</div>
+      <div id="cart-nota-box">
+        <label for="cart-nota">¿Algo que debamos saber? (opcional)</label>
+        <textarea id="cart-nota" maxlength="300" placeholder="Ej.: es para regalo, ciudad de entrega…"></textarea>
+      </div>
+    </div>
+    <footer id="cart-pie">
+      <p class="resumen" id="cart-resumen" aria-live="polite"></p>
+      <a class="btn btn-fill" id="cart-enviar" href="#" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Enviar mi pedido por WhatsApp</a>
+      <button class="vaciar" type="button" id="cart-vaciar">Vaciar selección</button>
+    </footer>
   </div>
 </dialog>
 

@@ -315,6 +315,11 @@ collections:
               - { label: "Oscuro", value: "oscuro" }
               - { label: "Claro", value: "claro" }
             hint: "Cada visitante puede cambiarlo con el botón de luna/sol; su elección se recuerda."
+          - name: carrito_activo
+            label: "¿Activar «Mi selección»?"
+            widget: boolean
+            default: true
+            hint: "El corazón en cada pieza y la bolsa de arriba. La clienta arma su lista y la envía completa por WhatsApp."
           - name: secciones
             label: "Secciones visibles"
             widget: object
