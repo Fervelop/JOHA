@@ -1,0 +1,95 @@
+{
+  "productos": [
+    {
+      "nombre": "Aretes flor dorada",
+      "tipo": "aretes",
+      "foto": "/images/productos/aretes-flor-dorada.webp",
+      "agotado": false,
+      "destacado": true
+    },
+    {
+      "nombre": "Aretes de corazón rosa",
+      "tipo": "aretes",
+      "foto": "/images/productos/aretes-de-corazon-rosa.webp",
+      "agotado": false,
+      "destacado": true
+    },
+    {
+      "nombre": "Set corazones rosados",
+      "tipo": "sets",
+      "foto": "/images/productos/set-corazones-rosados.webp",
+      "agotado": true,
+      "destacado": false
+    },
+    {
+      "nombre": "Aretes hoja brillante",
+      "tipo": "aretes",
+      "foto": "/images/productos/aretes-hoja-brillante.webp",
+      "agotado": true,
+      "destacado": false
+    },
+    {
+      "nombre": "Set corazón dorado",
+      "tipo": "sets",
+      "foto": "/images/productos/set-corazon-dorado.webp",
+      "agotado": false,
+      "destacado": true
+    },
+    {
+      "nombre": "Pulsera con encanto",
+      "tipo": "collares",
+      "foto": "/images/productos/pulsera-con-encanto.webp",
+      "agotado": true,
+      "destacado": false
+    },
+    {
+      "nombre": "Aretes de cruces",
+      "tipo": "aretes",
+      "foto": "/images/productos/aretes-de-cruces.webp",
+      "agotado": false,
+      "destacado": false
+    },
+    {
+      "nombre": "Set dorado en capas",
+      "tipo": "sets",
+      "foto": "/images/productos/set-dorado-en-capas.webp",
+      "agotado": true,
+      "destacado": false
+    },
+    {
+      "nombre": "Collar de dijes",
+      "tipo": "collares",
+      "foto": "/images/productos/collar-de-dijes.webp",
+      "agotado": false,
+      "destacado": true
+    },
+    {
+      "nombre": "Topos corazón de colores",
+      "tipo": "aretes",
+      "foto": "/images/productos/topos-corazon-de-colores.webp",
+      "agotado": false,
+      "destacado": false
+    },
+    {
+      "nombre": "Set muñequita",
+      "tipo": "sets",
+      "foto": "/images/productos/set-munequita.webp",
+      "agotado": false,
+      "destacado": true
+    },
+    {
+      "nombre": "Cadena y topos",
+      "tipo": "sets",
+      "foto": "/images/productos/cadena-y-topos.webp",
+      "agotado": true,
+      "destacado": false
+    },
+    {
+      "nombre": "Aros con encanto turquesa",
+      "tipo": "aretes",
+      "foto": "/images/productos/aros-con-encanto-turquesa.webp",
+      "agotado": false,
+      "destacado": true
+    }
+  ]
+}

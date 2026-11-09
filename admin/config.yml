@@ -1,0 +1,99 @@
+# Panel de administración de JOHA (Decap CMS)
+# Inicio de sesión con GitHub a través del proveedor OAuth de Netlify.
+# Solo pueden entrar cuentas de GitHub con permiso de escritura en este repositorio.
+backend:
+  name: github
+  repo: fervelop7/joha
+  branch: main
+  base_url: https://api.netlify.com
+  auth_endpoint: auth
+  commit_messages:
+    create: "Crear {{collection}} «{{slug}}»"
+    update: "Actualizar {{collection}} «{{slug}}»"
+    delete: "Eliminar {{collection}} «{{slug}}»"
+    uploadMedia: "Subir foto «{{path}}»"
+    deleteMedia: "Eliminar foto «{{path}}»"
+
+locale: es
+site_url: https://joha-jw.netlify.app
+display_url: https://joha-jw.netlify.app
+logo_url: /apple-touch-icon.png
+publish_mode: simple
+
+media_folder: images/productos
+public_folder: /images/productos
+
+collections:
+  - name: tienda
+    label: Tienda
+    editor:
+      preview: false
+    files:
+      - name: productos
+        label: Catálogo de productos
+        file: data/productos.json
+        description: >-
+          Agrega, edita o reordena las piezas. El orden de la lista es el orden en la página.
+          Los cambios se publican solos en uno o dos minutos.
+        fields:
+          - name: productos
+            label: Productos
+            label_singular: producto
+            widget: list
+            add_to_top: true
+            summary: "{{fields.nombre}}"
+            fields:
+              - name: nombre
+                label: Nombre
+                widget: string
+                pattern: ['^.{2,60}$', 'Entre 2 y 60 caracteres']
+              - name: tipo
+                label: Tipo
+                widget: select
+                options:
+                  - { label: "Aretes", value: "aretes" }
+                  - { label: "Set de collar y aretes", value: "sets" }
+                  - { label: "Collares y pulseras", value: "collares" }
+              - name: foto
+                label: Foto
+                widget: image
+                choose_url: false
+                hint: "Foto cuadrada o vertical, en PNG, JPG o WebP. Máximo 5 MB."
+                media_library:
+                  config:
+                    max_file_size: 5242880
+              - name: agotado
+                label: Agotado
+                widget: boolean
+                default: false
+              - name: destacado
+                label: Mostrar en la portada
+                widget: boolean
+                default: false
+                hint: "Las piezas agotadas no se muestran en la portada aunque estén marcadas."
+
+      - name: ajustes
+        label: Ajustes generales
+        file: data/ajustes.json
+        fields:
+          - name: whatsapp
+            label: Número de WhatsApp
+            widget: string
+            hint: "Con indicativo 57, sin + ni espacios. Ejemplo: 573183623168"
+            pattern: ['^57\d{10}$', 'Debe ser 57 seguido de los 10 dígitos del celular']
+          - name: instagram
+            label: Usuario de Instagram
+            widget: string
+            required: false
+            hint: "Sin @. Si lo dejas vacío, el enlace no aparece."
+            pattern: ['^[A-Za-z0-9._]{0,30}$', 'Solo letras, números, puntos y guion bajo']
+          - name: promo_activa
+            label: Mostrar ventana de lanzamiento
+            widget: boolean
+            default: true
+          - name: promo_titulo
+            label: Título de la ventana
+            widget: string
+          - name: promo_texto
+            label: Texto de la ventana
+            widget: text
