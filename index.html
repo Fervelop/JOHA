@@ -277,6 +277,41 @@ a{color:inherit}
 .vaciar{all:unset;cursor:pointer;align-self:center;font-size:.9rem;color:var(--ink-soft);text-decoration:underline;text-underline-offset:3px;padding:4px}
 @media (prefers-reduced-motion:reduce){.drawer{transition:none}.cart-count.pop{animation:none}}
 [data-carrito="off"] .cart-ui{display:none!important}
+/* sugerencias en el carrito */
+.sug{margin-top:22px}
+.sug h3{font-family:var(--serif);font-weight:400;font-size:1.2rem;margin:0 0 6px}
+.sug ul{list-style:none;margin:0;padding:0}
+.sug li{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.sug .mini{width:52px;height:52px;border-radius:12px;overflow:hidden;background:var(--rosa-suave)}
+.sug .mini img{width:100%;height:100%;object-fit:cover;display:block}
+.sug .nom{font-size:.98rem;line-height:1.25}
+.sug .cot{margin:0}
+.sug .cot-add{width:auto;min-height:38px;padding:6px 14px;font-size:.88rem;border-radius:999px}
+.sug .cot-add svg{display:none}
+/* botón flotante (celular y tablet) */
+.cart-fab{display:none}
+@media (max-width:900px){
+  .cart-fab{position:fixed;z-index:40;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;border:0;cursor:pointer;
+    display:grid;place-items:center;background:var(--vino);color:#FFF9F7;box-shadow:0 14px 30px -12px rgba(0,0,0,.55);transition:transform .16s var(--ease-out)}
+  .cart-fab svg{width:24px;height:24px}
+  .cart-fab:active{transform:scale(.92)}
+  .cart-fab:focus-visible{outline:2px solid var(--dorado);outline-offset:3px}
+  .cart-fab .cart-count{top:-2px;right:-2px}
+  .nav .cart-btn{display:none}
+  .aviso{bottom:calc(88px + env(safe-area-inset-bottom))}
+  body:has(#cart[open]) .cart-fab,body:has(#lb[open]) .cart-fab,body:has(#promo[open]) .cart-fab{display:none}
+}
+@media (max-width:900px){:root[data-theme="dark"] .cart-fab{background:var(--rosa);color:#5B2937}}
+.aviso{position:fixed;z-index:50;left:50%;bottom:22px;transform:translate(-50%,16px);opacity:0;display:flex;align-items:center;gap:14px;
+  max-width:min(520px,calc(100% - 32px));padding:12px 14px 12px 20px;border-radius:999px;background:var(--vino);color:#FFF9F7;box-shadow:0 18px 40px -18px rgba(0,0,0,.6);
+  transition:transform .25s var(--ease-out),opacity .2s ease;font-size:.95rem}
+.aviso.in{transform:translate(-50%,0);opacity:1}
+.aviso[hidden]{display:none}
+.aviso button{all:unset;cursor:pointer;flex:none;font-weight:500;padding:8px 14px;border-radius:999px;background:rgba(255,249,247,.16)}
+.aviso button:focus-visible{outline:2px solid var(--dorado)}
+@media (hover:hover) and (pointer:fine){.aviso button:hover{background:rgba(255,249,247,.26)}}
+@media (max-width:620px){.aviso{border-radius:18px;flex-wrap:wrap;bottom:16px}}
+@media (prefers-reduced-motion:reduce){.aviso{transition:opacity .2s ease;transform:translate(-50%,0)}}
 /* ---------- Band ---------- */
 .band{background:var(--band-bg);color:var(--band-ink);padding:110px 0;text-align:center;position:relative;overflow:hidden}
 .band .script{font-family:var(--script);font-size:clamp(2.6rem,7vw,5.4rem);line-height:1.1;margin:0;color:var(--rosa)}
@@ -343,6 +378,9 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
   .nav ul{display:none}
 }
 @media (max-width:620px){
+  .cot-add{font-size:.85rem;line-height:1.2;padding:8px 10px;border-radius:16px}
+  .cot-add svg{display:none}
+  .item .cot-lbl{display:none}
   .cuidado{padding:72px 0}
   .calidad{padding:0 0 80px}
   .promo{padding:40px 24px 30px}
@@ -557,6 +595,11 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
   </div>
 </dialog>
 
+<button class="cart-fab cart-ui" id="cart-fab" type="button" aria-label="Mi cotización: vacía">
+  <svg aria-hidden="true"><use href="#i-bag"/></svg><span class="cart-count" id="fab-count" aria-hidden="true" hidden>0</span>
+</button>
+<div class="aviso" id="aviso" role="status" aria-live="polite" hidden><span></span><button type="button"></button></div>
+
 <dialog id="cart" aria-labelledby="cart-t" class="cart-ui">
   <div class="drawer">
     <header>
@@ -565,6 +608,10 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
     </header>
     <div class="cuerpo">
       <ul id="cart-lista" style="list-style:none;margin:0;padding:0"></ul>
+      <section class="sug" id="cart-sug" hidden aria-labelledby="sug-t">
+        <h3 id="sug-t">Combina con tu cotización</h3>
+        <ul id="sug-lista"></ul>
+      </section>
       <div class="vacia" id="cart-vacia"><span class="script">Aún no hay piezas</span>Toca «Añadir a mi cotización» en las piezas que te gusten y aparecerán aquí.</div>
       <div id="cart-nota-box">
         <label for="cart-nota">¿Algo que debamos saber? (opcional)</label>

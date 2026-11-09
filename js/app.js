@@ -125,11 +125,25 @@ const Carrito = (() => {
       .map(i => ({ nombre: i.nombre, cant: Math.min(MAX, Math.max(1, i.cant | 0)) }));
     guardar();
     $("cart-open").addEventListener("click", abrirCajon);
+    $("cart-fab").addEventListener("click", abrirCajon);
     $("cart-x").addEventListener("click", cerrarCajon);
     $("cart").addEventListener("click", e => { if (e.target === $("cart")) cerrarCajon(); });
     $("cart").addEventListener("cancel", e => { e.preventDefault(); cerrarCajon(); });
     $("cart-vaciar").addEventListener("click", () => { items = []; guardar(); pintar(); });
     $("cart-nota").addEventListener("input", actualizarEnlace);
+    // al enviar por WhatsApp, la cotización se vacía (con opción de recuperarla unos segundos)
+    $("cart-enviar").addEventListener("click", () => {
+      actualizarEnlace();
+      const copia = { items: items.map(i => ({ ...i })), nota: $("cart-nota").value };
+      setTimeout(() => {
+        items = []; $("cart-nota").value = "";
+        guardar(); pintar(false); cerrarCajon();
+        aviso("¡Listo! Tu cotización se abrió en WhatsApp.", "Recuperar mi lista", () => {
+          items = copia.items; $("cart-nota").value = copia.nota;
+          guardar(); pintar(true);
+        });
+      }, 150);
+    });
     // un solo escuchador para todos los controles de cantidad (tarjetas y detalle)
     document.addEventListener("click", e => {
       const b = e.target.closest(".cot [data-act]");
@@ -138,9 +152,12 @@ const Carrito = (() => {
       if (b.dataset.act === "add") cambiar(n, +1, true);
       else if (b.dataset.act === "mas") cambiar(n, +1, true);
       else if (b.dataset.act === "menos") cambiar(n, -1);
-      const nueva = document.querySelector(`.cot[data-n="${CSS.escape(n)}"] [data-act="${b.dataset.act === "add" ? "mas" : b.dataset.act}"]`)
-        || document.querySelector(`.cot[data-n="${CSS.escape(n)}"] [data-act="add"]`);
-      if (nueva && b.closest("#lb") === nueva.closest("#lb")) nueva.focus();
+      // devolver el foco al control equivalente dentro del mismo contexto (tarjeta, detalle o carrito)
+      const zona = b.closest("dialog") || $("grid");
+      const sel = `.cot[data-n="${CSS.escape(n)}"]`;
+      const nueva = zona.querySelector(`${sel} [data-act="${b.dataset.act === "add" ? "mas" : b.dataset.act}"]:not([disabled])`)
+        || zona.querySelector(`${sel} [data-act]`);
+      if (nueva) nueva.focus();
     });
     pintar(false);
   }
@@ -168,6 +185,26 @@ const Carrito = (() => {
         <span class="cot-lbl">${c >= MAX ? `Máximo ${MAX} por pieza` : "En tu cotización"}</span></div>`;
   }
 
+  /* sugerencias: piezas disponibles del mismo tipo que lo elegido (o destacadas) */
+  function sugerir() {
+    const box = $("cart-sug"), ul = $("sug-lista");
+    if (!items.length) { box.hidden = true; return; }
+    const elegidos = new Set(items.map(i => i.nombre));
+    const tipos = new Set(items.map(i => (porNombre.get(i.nombre) || {}).tipo));
+    const libres = [...porNombre.values()].filter(p => !p.agotado && !elegidos.has(p.nombre));
+    const orden = p => (tipos.has(p.tipo) ? 0 : 2) + (p.destacado ? 0 : 1);
+    const lista = libres.sort((a, b) => orden(a) - orden(b)).slice(0, 3);
+    box.hidden = !lista.length;
+    ul.textContent = "";
+    lista.forEach(p => {
+      const li = document.createElement("li");
+      li.innerHTML = `<div class="mini"><img src="${esc(imgUrl(p.foto, 120))}" alt=""></div>
+        <span class="nom">${esc(p.nombre)}</span>
+        <div class="cot sug-cot" data-n="${esc(p.nombre)}"></div>`;
+      ul.appendChild(li);
+    });
+  }
+
   function mensaje() {
     const lineas = items.map(i => `• ${i.cant} × ${i.nombre}`);
     const nota = $("cart-nota").value.trim();
@@ -180,8 +217,16 @@ const Carrito = (() => {
     const n = total(), c = $("cart-count");
     c.textContent = n; c.hidden = n === 0;
     if (animar && n) { c.classList.remove("pop"); void c.offsetWidth; c.classList.add("pop"); }
-    $("cart-open").setAttribute("aria-label", n ? `Mi cotización: ${piezas(n)}` : "Mi cotización: vacía");
-    document.querySelectorAll(".cot[data-n]").forEach(el => { el.innerHTML = control(el.dataset.n); });
+    const etiqueta = n ? `Mi cotización: ${piezas(n)}` : "Mi cotización: vacía";
+    $("cart-open").setAttribute("aria-label", etiqueta);
+    $("cart-fab").setAttribute("aria-label", etiqueta);
+    const fc = $("fab-count");
+    fc.textContent = n; fc.hidden = n === 0;
+    if (animar && n) { fc.classList.remove("pop"); void fc.offsetWidth; fc.classList.add("pop"); }
+    sugerir();
+    document.querySelectorAll(".cot[data-n]").forEach(el => {
+      el.innerHTML = el.classList.contains("sug-cot") ? control(el.dataset.n).replace("Añadir a mi cotización", "Añadir") : control(el.dataset.n);
+    });
 
     const ul = $("cart-lista");
     ul.textContent = "";
@@ -207,6 +252,20 @@ const Carrito = (() => {
     $("cart-pie").hidden = vacia;
     $("cart-resumen").textContent = vacia ? "" : `${piezas(n)} en tu cotización. Te confirmamos precio y disponibilidad por WhatsApp.`;
     actualizarEnlace();
+  }
+
+  let avisoTimer = null;
+  function aviso(texto, accion, alHacer) {
+    const el = $("aviso");
+    el.querySelector("span").textContent = texto;
+    const b = el.querySelector("button");
+    b.textContent = accion; b.hidden = !accion;
+    b.onclick = () => { alHacer && alHacer(); ocultar(); };
+    el.hidden = false;
+    requestAnimationFrame(() => el.classList.add("in"));
+    clearTimeout(avisoTimer);
+    avisoTimer = setTimeout(ocultar, 10000);
+    function ocultar() { el.classList.remove("in"); clearTimeout(avisoTimer); setTimeout(() => { el.hidden = true; }, 250); }
   }
 
   function abrirCajon() {
