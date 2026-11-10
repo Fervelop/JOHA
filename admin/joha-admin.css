@@ -78,3 +78,8 @@ html body [class*="ToolbarContainer"] button,html body [class*="ToolbarContainer
 html body [class*="SaveButton"]:not([class*="disabled"]){background:var(--j-vino)!important;color:#FFF9F7!important}
 html body [class*="BackCollection"]{font-size:1rem!important;font-weight:700!important}
 html body [class*="BackStatus"]{font-size:.85rem!important}
+
+/* botón Publicar en vino */
+html body [class*="PublishButton"]{background-color:var(--j-vino)!important;color:#FFF9F7!important;padding-left:22px!important;padding-right:44px!important;font-size:1rem!important}
+html body [class*="PublishButton"]:hover{background-color:var(--j-vino-2)!important}
+html body [class*="DropdownItem"]{font-size:1rem!important}

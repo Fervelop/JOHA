@@ -47,7 +47,7 @@
       "fotos": [
         "/images/productos/set-corazon-dorado.webp"
       ],
-      "agotado": false,
+      "agotado": true,
       "destacado": true
     },
     {
@@ -87,7 +87,7 @@
       "fotos": [
         "/images/productos/collar-de-dijes.webp"
       ],
-      "agotado": false,
+      "agotado": true,
       "destacado": true
     },
     {
@@ -107,7 +107,7 @@
       "fotos": [
         "/images/productos/set-munequita.webp"
       ],
-      "agotado": false,
+      "agotado": true,
       "destacado": true
     },
     {

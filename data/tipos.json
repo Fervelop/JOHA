@@ -1,0 +1,19 @@
+{
+  "tipos": [
+    {
+      "slug": "aretes",
+      "nombre": "Aretes",
+      "etiqueta": "Aretes"
+    },
+    {
+      "slug": "sets",
+      "nombre": "Sets",
+      "etiqueta": "Set de collar y aretes"
+    },
+    {
+      "slug": "collares",
+      "nombre": "Collares y pulseras",
+      "etiqueta": "Collares y pulseras"
+    }
+  ]
+}

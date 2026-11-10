@@ -40,7 +40,9 @@ Sitio web y catálogo de **JOHA**, marca de accesorios y joyería femenina con b
 - **Productos** como fichas con miniatura, búsqueda, filtros (Disponibles, Agotados, En la portada) y grupos por tipo.
 - Vista previa de la tarjeta, de la ventana de bienvenida y de la portada mientras se edita.
 - **Página**: portada, ventana de bienvenida, textos de las secciones y ajustes generales (WhatsApp, Instagram, modo inicial, «Mi cotización» y secciones visibles).
-- **Borradores y aprobación**: Guardar → Estado «Listo» → Publicar → Publicar ahora. En «En revisión» Netlify genera una vista previa del sitio.
+- **Tipos de producto** editables (Aretes, Sets, Anillos…): cada tipo crea su botón de filtro en la página.
+- **Publicación directa**: Publicar → Publicar ahora (se quitaron los borradores para simplificar).
+- **Asistente de subida de fotos**: limpia los nombres (tildes, ñ, espacios) y reduce las fotos grandes antes de subirlas.
 - Apariencia JOHA y tipografía Atkinson Hyperlegible para facilitar la lectura.
 
 ### Seguridad y rendimiento
@@ -56,15 +58,16 @@ Sitio web y catálogo de **JOHA**, marca de accesorios y joyería femenina con b
 
 1. Entrar a **/admin** → «Iniciar sesión con GitHub».
 2. **Productos** → abrir una ficha o «+ producto».
-3. Editar y pulsar **Guardar** (queda como borrador).
-4. Cambiar el estado a **Listo** (o «En revisión» para ver la vista previa).
-5. **Publicar → Publicar ahora**. La página se actualiza en uno o dos minutos.
+3. Para la foto: **Elige una imagen → Subir nuevo → elegir la foto → Confirmar selección**.
+4. **Publicar → Publicar ahora**. La página se actualiza en uno o dos minutos.
+
+¿Falta un tipo (por ejemplo Anillos)? Crearlo primero en **Tipos de producto** y luego elegirlo en la pieza.
 
 Consejos:
 - **Orden en el catálogo:** número menor aparece primero (10, 20, 30…; usa 15 para intercalar).
 - **Portada:** activar «¿Mostrar en la portada?» en las piezas deseadas, o elegir fotos propias en Página → Portada.
 - **Negrita en textos:** escribir la palabra entre `**asteriscos**`.
-- **Fotos:** PNG, JPG o WebP de hasta 5 MB; se optimizan solas.
+- **Fotos:** JPG, PNG o WebP. Las grandes se reducen solas al subirlas. Las HEIC del iPhone deben exportarse como JPG.
 
 Para dar acceso a otra persona: GitHub → Fervelop/JOHA → Settings → Collaborators → Add people (permiso Write). Pedirle que active la verificación en dos pasos.
 
@@ -126,15 +129,16 @@ Para dar acceso a otra persona: GitHub → Fervelop/JOHA → Settings → Collab
 | `index.html` | La página (estructura y estilos) |
 | `js/app.js` | Catálogo, ruleta, ventana de bienvenida, «Mi cotización», textos y ajustes |
 | `js/tema.js` | Modo oscuro por defecto y elección guardada |
+| `content/tipos/*.json` | Tipos de producto (los edita el panel) |
 | `content/productos/*.json` | Una ficha por pieza (la edita el panel) |
-| `scripts/compilar.js` | Une las fichas en `data/productos.json` en cada publicación |
-| `data/productos.json` | Catálogo compilado (no editar a mano) |
+| `scripts/compilar.js` | Une tipos y fichas en `data/tipos.json` y `data/productos.json` en cada publicación |
+| `data/tipos.json`, `data/productos.json` | Catálogo compilado (no editar a mano) |
 | `data/portada.json` | Frase de la portada y tarjetas que giran |
 | `data/promo.json` | Ventana de bienvenida |
 | `data/textos.json` | Textos de las secciones |
 | `data/ajustes.json` | WhatsApp, Instagram, modo inicial, cotización y secciones visibles |
 | `images/productos/` | Fotos (las sube el panel) |
-| `admin/` | Panel: configuración, vista previa, apariencia y Decap CMS |
+| `admin/` | Panel: configuración, vista previa, apariencia, asistente de subida (`subida.js`) y Decap CMS |
 | `netlify.toml` | Compilación, cabeceras de seguridad y caché |
 
 ### Configuración de Netlify y GitHub (ya hecha)

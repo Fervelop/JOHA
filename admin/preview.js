@@ -2,6 +2,10 @@
 (function () {
   if (!window.CMS || !window.h || !window.createClass) return;
   var CAT = { aretes: "Aretes", sets: "Set de collar y aretes", collares: "Collares y pulseras" };
+  // nombres actuales de los tipos (publicados)
+  fetch("/data/tipos.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+    if (d && d.tipos) d.tipos.forEach(function (t) { CAT[t.slug] = t.etiqueta || t.nombre; });
+  }).catch(function () {});
 
   var Producto = createClass({
     asset: function (p) { return p ? String(this.props.getAsset(p)) : ""; },
@@ -32,7 +36,7 @@
             foto(img, agotado ? "gris" : ""),
             fotos.length > 1 ? h("span", { className: "mas" }, fotos.length + " fotos") : null),
           h("h3", null, nombre),
-          h("span", { className: "cat" }, CAT[d("tipo")] || "Elige el tipo")),
+          h("span", { className: "cat" }, CAT[d("tipo")] || d("tipo") || "Elige el tipo")),
         h("ul", { className: "estado" },
           h("li", { className: agotado ? "no" : "si" }, agotado ? "Agotado: se muestra con etiqueta y no sale en la portada" : "Disponible"),
           h("li", { className: destacado && !agotado ? "si" : "off" },

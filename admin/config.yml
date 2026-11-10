@@ -7,9 +7,6 @@ backend:
   branch: main
   base_url: https://api.netlify.com
   auth_endpoint: auth
-  # Borradores: cada cambio crea una solicitud de revisión (pull request)
-  # y Netlify genera una vista previa antes de publicar.
-  preview_context: deploy/netlify
   commit_messages:
     create: "Crear {{collection}} «{{slug}}»"
     update: "Actualizar {{collection}} «{{slug}}»"
@@ -18,7 +15,6 @@ backend:
     deleteMedia: "Eliminar foto «{{path}}»"
     openAuthoring: "{{message}}"
 
-publish_mode: editorial_workflow
 locale: es
 site_url: https://joha-jw.netlify.app
 display_url: https://joha-jw.netlify.app
@@ -35,13 +31,53 @@ slug:
   sanitize_replacement: "-"
 
 collections:
+  # ================================================================ TIPOS
+  - name: tipos
+    label: "🏷️ Tipos de producto"
+    label_singular: tipo
+    description: >-
+      Los grupos del catálogo (Aretes, Sets, Anillos…). Cada tipo crea un botón de filtro en la página
+      cuando tiene al menos una pieza. Si borras un tipo que tiene piezas, esas piezas pasan a «Otros».
+    folder: content/tipos
+    format: json
+    extension: json
+    create: true
+    delete: true
+    slug: "{{nombre}}"
+    identifier_field: nombre
+    summary: "{{nombre}}"
+    sortable_fields:
+      - field: orden
+        label: Orden
+        default_sort: asc
+    editor:
+      preview: false
+    fields:
+      - name: nombre
+        label: Nombre del filtro
+        widget: string
+        hint: "El texto del botón de filtro. Ejemplos: Anillos, Pulseras, Tobilleras."
+        pattern: ['^.{2,40}$', 'Entre 2 y 40 caracteres']
+      - name: etiqueta
+        label: Texto debajo de cada pieza
+        widget: string
+        required: false
+        hint: "Opcional. Si lo dejas vacío se usa el nombre. Ejemplo: «Set de collar y aretes»."
+      - name: orden
+        label: Posición del filtro
+        widget: number
+        value_type: int
+        default: 100
+        min: 1
+        hint: "Menor número = aparece primero."
+
   # ================================================================ PRODUCTOS
   - name: productos
     label: "🛍️ Productos"
     label_singular: producto
     description: >-
       Cada pieza es una ficha. Usa «Filter by» para ver agotadas o las de la portada, y la vista de cuadrícula para ver las fotos.
-      Para que un cambio salga en la página: 1) Guardar  2) Estado → Listo  3) Publicar → Publicar ahora. Tarda uno o dos minutos.
+      Para que un cambio salga en la página: Publicar → Publicar ahora. Se ve en uno o dos minutos.
     folder: content/productos
     format: json
     extension: json
@@ -71,20 +107,21 @@ collections:
         pattern: ['^.{2,60}$', 'Entre 2 y 60 caracteres']
       - name: tipo
         label: Tipo
-        widget: select
-        hint: "Define en qué filtro del catálogo aparece."
-        options:
-          - { label: "Aretes", value: "aretes" }
-          - { label: "Set de collar y aretes", value: "sets" }
-          - { label: "Collares y pulseras", value: "collares" }
+        widget: relation
+        collection: tipos
+        value_field: "{{slug}}"
+        search_fields: ["nombre"]
+        display_fields: ["nombre"]
+        options_length: 100
+        hint: "Define en qué filtro del catálogo aparece. ¿Falta un tipo? Créalo en «Tipos de producto»."
       - name: image
         label: Foto principal
         widget: image
         choose_url: false
-        hint: "La que se ve en el catálogo y en la portada. PNG, JPG o WebP, máximo 5 MB."
+        hint: "Toca «Elige una imagen» → «Subir nuevo» → elige la foto → «Confirmar selección». JPG, PNG o WebP. Las fotos grandes se ajustan solas. Las fotos HEIC del iPhone no funcionan: expórtalas como JPG."
         media_library:
           config:
-            max_file_size: 5242880
+            max_file_size: 10485760
       - name: galeria
         label: Más fotos
         label_singular: foto
@@ -93,7 +130,7 @@ collections:
         max: 5
         collapsed: false
         summary: "{{fields.foto}}"
-        hint: "Hasta 5 fotos adicionales. Se ven como miniaturas al abrir la pieza."
+        hint: "Opcional. Pulsa «Add foto» y luego «Elige una imagen». Hasta 5 fotos adicionales que se ven al abrir la pieza."
         fields:
           - name: foto
             label: Foto
@@ -101,7 +138,7 @@ collections:
             choose_url: false
             media_library:
               config:
-                max_file_size: 5242880
+                max_file_size: 10485760
       - name: agotado
         label: "¿Está agotada?"
         widget: boolean
@@ -125,7 +162,7 @@ collections:
     label: "🌸 Página"
     description: >-
       Portada, ventana de bienvenida, textos de las secciones y ajustes generales.
-      Para que un cambio salga en la página: 1) Guardar  2) Estado → Listo  3) Publicar → Publicar ahora. Tarda uno o dos minutos.
+      Para que un cambio salga en la página: Publicar → Publicar ahora. Se ve en uno o dos minutos.
     files:
       # ---------------------------------------------------------- portada
       - name: portada

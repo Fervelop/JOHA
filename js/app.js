@@ -3,7 +3,12 @@
    (archivos data/productos.json y data/ajustes.json). */
 "use strict";
 
-const CAT = { aretes: "Aretes", sets: "Set de collar y aretes", collares: "Collares y pulseras" };
+// Tipos de producto: se cargan de data/tipos.json (editables en el panel).
+// Estos valores solo se usan si ese archivo no se puede leer.
+let CAT = { aretes: "Aretes", sets: "Set de collar y aretes", collares: "Collares y pulseras" };
+let TIPOS = [
+  { slug: "aretes", nombre: "Aretes" }, { slug: "sets", nombre: "Sets" }, { slug: "collares", nombre: "Collares y pulseras" }
+];
 const MSG = "Hola JOHA, me interesa saber más sobre tus accesorios 🌷";
 let WHATSAPP = "573183623168";
 
@@ -17,8 +22,9 @@ const waLink = msg => `https://wa.me/${WHATSAPP}?text=` + encodeURIComponent(msg
 const ON_NETLIFY = location.protocol === "https:" && !/^(localhost|127\.)/.test(location.hostname) && !/claude/.test(location.hostname);
 function imgUrl(src, w) {
   src = String(src || "");
-  if (!/^\/?images\/[\w\-./]+\.(png|jpe?g|webp|avif|gif)$/i.test(src) || src.includes("..")) return "";
-  const path = src.startsWith("/") ? src : "/" + src;
+  if (!/^\/?images\/[^"'<>?#\\]+\.(png|jpe?g|webp|avif|gif)$/i.test(src) || src.includes("..")) return "";
+  let path = src.startsWith("/") ? src : "/" + src;
+  try { path = encodeURI(decodeURI(path)); } catch (e) { return ""; }
   return ON_NETLIFY ? `/.netlify/images?url=${encodeURIComponent(path)}&w=${w}&q=80` : path.slice(1);
 }
 const ph = (src, alt, w, lazy) => {
@@ -316,11 +322,20 @@ function pintarCatalogo(productos) {
     grid.appendChild(li);
   });
 }
-document.querySelectorAll(".filters button").forEach(b => b.addEventListener("click", () => {
-  document.querySelectorAll(".filters button").forEach(x => x.setAttribute("aria-pressed", x === b));
-  const f = b.dataset.f;
-  $("grid").querySelectorAll(".item").forEach(li => li.hidden = !(f === "todo" || li.dataset.c === f));
-}));
+/* filtros: «Todo» + un botón por cada tipo que tenga piezas */
+function pintarFiltros(productos) {
+  const box = document.querySelector(".filters");
+  const usados = new Set(productos.map(p => p.tipo));
+  box.innerHTML = `<button type="button" data-f="todo" aria-pressed="true">Todo</button>` +
+    TIPOS.filter(t => usados.has(t.slug)).map(t =>
+      `<button type="button" data-f="${esc(t.slug)}" aria-pressed="false">${esc(t.nombre)}</button>`).join("");
+  box.hidden = usados.size < 2;
+  box.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    box.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    const f = b.dataset.f;
+    $("grid").querySelectorAll(".item").forEach(li => li.hidden = !(f === "todo" || li.dataset.c === f));
+  }));
+}
 
 /* ---------- ruleta de la portada ---------- */
 function pintarRuleta(productos, conf) {
@@ -359,12 +374,12 @@ function pintarRuleta(productos, conf) {
     });
   }
   const next = () => { cur = (cur + 1) % n; layout(); };
-  const play = () => { if (n > 1 && !timer && !reduce.matches && !document.hidden) timer = setInterval(next, ms); };
+  // Gira siempre (también con el mouse encima). Con «reducir movimiento» activo
+  // en el sistema, cambia con un fundido suave en vez de desplazarse.
+  const play = () => { if (n > 1 && !timer && !document.hidden) timer = setInterval(next, reduce.matches ? Math.max(ms, 5000) : ms); };
   const stop = () => { clearInterval(timer); timer = null; };
-  box.addEventListener("mouseenter", stop);
-  box.addEventListener("mouseleave", play);
   document.addEventListener("visibilitychange", () => document.hidden ? stop() : play());
-  reduce.addEventListener("change", () => reduce.matches ? stop() : play());
+  reduce.addEventListener("change", () => { stop(); play(); });
   layout(); play();
 }
 
@@ -457,18 +472,24 @@ function aplicarTextos(t) {
 /* ---------- arranque ---------- */
 (async () => {
   document.querySelectorAll(".wa").forEach(el => el.href = waLink(el.dataset.msg));
-  const [datos, ajustes, textos, portada, promo] = await Promise.all([
+  const [datos, ajustes, textos, portada, promo, tipos] = await Promise.all([
     cargar("data/productos.json", { productos: [] }),
     cargar("data/ajustes.json", {}),
     cargar("data/textos.json", {}),
     cargar("data/portada.json", {}),
-    cargar("data/promo.json", null)
+    cargar("data/promo.json", null),
+    cargar("data/tipos.json", null)
   ]);
+  if (tipos && Array.isArray(tipos.tipos) && tipos.tipos.length) {
+    TIPOS = tipos.tipos.filter(t => t && t.slug && t.nombre);
+    CAT = Object.fromEntries(TIPOS.map(t => [t.slug, t.etiqueta || t.nombre]));
+  }
   aplicarTextos(Object.assign({}, textos, { portada: Object.assign({}, (textos || {}).portada, portada) }));
   const productos = (Array.isArray(datos.productos) ? datos.productos : [])
     .filter(p => p && p.nombre && p.foto && CAT[p.tipo]);
   aplicarAjustes(ajustes || {});
   aplicarPromo(promo, ajustes || {});
+  pintarFiltros(productos);
   pintarCatalogo(productos);
   Carrito.iniciar(productos, (ajustes || {}).carrito_activo);
   pintarRuleta(productos, (portada || {}).ruleta);

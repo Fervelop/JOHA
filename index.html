@@ -123,7 +123,9 @@ a{color:inherit}
   .sparkle{animation:twinkle 3.6s ease-in-out infinite}.s2{animation-delay:1.4s}
 }
 @media (prefers-reduced-motion:reduce){
-  .rc{transition:opacity .5s ease}
+  /* sin desplazamientos: solo la tarjeta central, con fundido */
+  .rc,.rc[data-pos]{transition:opacity .9s ease;--x:0%;--s:1;--r:0deg}
+  .rc[data-pos="left"],.rc[data-pos="right"],.rc[data-pos="hidden"]{--o:0}
 }
 @keyframes rise{from{opacity:0;transform:translateY(14px)}}
 @keyframes twinkle{0%,100%{opacity:.25;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}
@@ -481,9 +483,6 @@ dialog::backdrop{background:rgba(42,20,27,.72);backdrop-filter:blur(4px)}
         </div>
         <div class="filters" role="group" aria-label="Filtrar catálogo">
           <button type="button" data-f="todo" aria-pressed="true">Todo</button>
-          <button type="button" data-f="aretes" aria-pressed="false">Aretes</button>
-          <button type="button" data-f="sets" aria-pressed="false">Sets</button>
-          <button type="button" data-f="collares" aria-pressed="false">Collares y pulseras</button>
         </div>
       </div>
       <ul class="grid" id="grid"></ul>
